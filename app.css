@@ -1,0 +1,41 @@
+:root {
+    /* =========================================================
+       BONIKPRESS — ROOT COLOR PALETTE
+       ========================================================= */
+
+    /* Primary Brand */
+    --bp-green: #0B7A3B;
+    --bp-green-light: #16A052;
+    --bp-green-pale: #DFF6E8;
+    --bp-green-soft: #E8F7ED;
+
+    /* Deep Brand / Dark Surfaces */
+    --bp-deep: #063C25;
+    --bp-deep-2: #073B25;
+
+    /* Text */
+    --bp-text: #13231B;
+    --bp-text-muted: #66766D;
+    --bp-text-light: #8B9891;
+
+    /* Backgrounds */
+    --bp-white: #FFFFFF;
+    --bp-background: #FBFEFC;
+    --bp-background-soft: #F6FAF7;
+    --bp-background-green: #F1F9F3;
+
+    /* Borders */
+    --bp-border: #E2EBE5;
+    --bp-border-green: #C9E5D2;
+
+    /* Effects */
+    --bp-shadow: 0 18px 55px rgba(7, 75, 40, 0.09);
+    --bp-shadow-hover: 0 25px 65px rgba(7, 75, 40, 0.13);
+
+    /* Layout */
+    --bp-radius-sm: 10px;
+    --bp-radius-md: 16px;
+    --bp-radius-lg: 21px;
+    --bp-radius-xl: 24px;
+    --bp-radius-xxl: 28px;
+}
