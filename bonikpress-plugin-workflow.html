@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BonikPress — Plugin Ecosystem Architecture</title>
+<style>
+:root {
+  /* =========================================================
+     BONIKPRESS — ROOT COLOR PALETTE
+     ========================================================= */
+
+  /* Primary Brand */
+  --bp-green: #0B7A3B;
+  --bp-green-light: #16A052;
+  --bp-green-pale: #DFF6E8;
+  --bp-green-soft: #E8F7ED;
+
+  /* Deep Brand / Dark Surfaces */
+  --bp-deep: #063C25;
+  --bp-deep-2: #073B25;
+
+  /* Text */
+  --bp-text: #13231B;
+  --bp-text-muted: #66766D;
+  --bp-text-light: #8B9891;
+
+  /* Backgrounds */
+  --bp-white: #FFFFFF;
+  --bp-background: #FBFEFC;
+  --bp-background-soft: #F6FAF7;
+  --bp-background-green: #F1F9F3;
+
+  /* Borders */
+  --bp-border: #E2EBE5;
+  --bp-border-green: #C9E5D2;
+
+  /* Effects */
+  --bp-shadow: 0 18px 55px rgba(7, 75, 40, 0.09);
+  --bp-shadow-hover: 0 25px 65px rgba(7, 75, 40, 0.13);
+
+  /* Layout */
+  --bp-radius-sm: 10px;
+  --bp-radius-md: 16px;
+  --bp-radius-lg: 21px;
+  --bp-radius-xl: 24px;
+  --bp-radius-xxl: 28px;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: var(--bp-text);
+  background:
+    radial-gradient(circle at 85% 0%, var(--bp-green-pale) 0, transparent 27rem),
+    var(--bp-background);
+  line-height: 1.6;
+}
+
+a { color: inherit; }
+
+.container {
+  width: min(1180px, calc(100% - 40px));
+  margin: 0 auto;
+}
+
+.hero {
+  padding: 78px 0 65px;
+  text-align: center;
+}
+
+.eyebrow {
+  display: inline-flex;
+  padding: 7px 13px;
+  border: 1px solid var(--bp-border-green);
+  border-radius: 999px;
+  background: var(--bp-green-soft);
+  color: var(--bp-green);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+h1 {
+  max-width: 850px;
+  margin: 18px auto 16px;
+  font-size: clamp(40px, 6vw, 72px);
+  line-height: 1.02;
+  letter-spacing: -.055em;
+}
+
+.hero p {
+  max-width: 720px;
+  margin: 0 auto;
+  color: var(--bp-text-muted);
+  font-size: 19px;
+}
+
+.section {
+  padding: 36px 0 80px;
+}
+
+.section-header {
+  max-width: 760px;
+  margin-bottom: 30px;
+}
+
+.section-label {
+  color: var(--bp-green);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+h2 {
+  margin: 7px 0 9px;
+  font-size: clamp(28px, 4vw, 42px);
+  line-height: 1.1;
+  letter-spacing: -.035em;
+}
+
+.section-header p {
+  margin: 0;
+  color: var(--bp-text-muted);
+}
+
+.card {
+  background: var(--bp-white);
+  border: 1px solid var(--bp-border);
+  border-radius: var(--bp-radius-xl);
+  box-shadow: var(--bp-shadow);
+}
+
+.architecture {
+  padding: 34px;
+}
+
+.arch-row {
+  display: flex;
+  align-items: stretch;
+  gap: 14px;
+}
+
+.arch-box {
+  flex: 1;
+  min-width: 0;
+  padding: 22px;
+  border-radius: var(--bp-radius-md);
+  border: 1px solid var(--bp-border-green);
+  background: var(--bp-background-green);
+}
+
+.arch-box.primary {
+  color: var(--bp-white);
+  background: var(--bp-deep);
+  border-color: var(--bp-deep);
+}
+
+.arch-box h3 {
+  margin: 0 0 7px;
+  font-size: 18px;
+}
+
+.arch-box p {
+  margin: 0;
+  color: var(--bp-text-muted);
+  font-size: 14px;
+}
+
+.arch-box.primary p { color: #d8eee2; }
+
+.arrow {
+  align-self: center;
+  color: var(--bp-green-light);
+  font-size: 26px;
+  font-weight: 800;
+}
+
+.note {
+  margin-top: 20px;
+  padding: 17px 19px;
+  border-left: 4px solid var(--bp-green);
+  border-radius: var(--bp-radius-sm);
+  background: var(--bp-green-soft);
+  color: var(--bp-text);
+  font-size: 14px;
+}
+
+.menu-demo {
+  display: grid;
+  grid-template-columns: 270px 1fr;
+  overflow: hidden;
+  min-height: 570px;
+}
+
+.sidebar {
+  padding: 24px 15px;
+  color: #dceee5;
+  background: var(--bp-deep);
+}
+
+.wp-title {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  padding: 4px 10px 23px;
+  color: white;
+  font-weight: 800;
+}
+
+.wp-dot {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border: 2px solid white;
+  border-radius: 50%;
+  font-size: 13px;
+}
+
+.menu-group {
+  margin-top: 15px;
+}
+
+.menu-label {
+  padding: 8px 12px;
+  color: #8fb8a2;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.menu-item {
+  margin: 3px 0;
+  padding: 10px 12px;
+  border-radius: 9px;
+  font-size: 14px;
+}
+
+.menu-item.active {
+  color: white;
+  background: var(--bp-green);
+  font-weight: 750;
+}
+
+.menu-item.child {
+  margin-left: 13px;
+  color: #b8d5c6;
+}
+
+.menu-item.child.active {
+  color: var(--bp-green);
+  background: var(--bp-green-pale);
+}
+
+.content {
+  padding: 38px;
+  background: var(--bp-background-soft);
+}
+
+.breadcrumb {
+  color: var(--bp-text-light);
+  font-size: 12px;
+  margin-bottom: 7px;
+}
+
+.content h3 {
+  margin: 0;
+  font-size: 29px;
+  letter-spacing: -.03em;
+}
+
+.content-subtitle {
+  color: var(--bp-text-muted);
+  margin: 7px 0 28px;
+}
+
+.module-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.module {
+  padding: 20px;
+  background: white;
+  border: 1px solid var(--bp-border);
+  border-radius: var(--bp-radius-md);
+  box-shadow: 0 8px 30px rgba(7, 75, 40, .05);
+}
+
+.module .icon {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 13px;
+  border-radius: 11px;
+  color: var(--bp-green);
+  background: var(--bp-green-pale);
+  font-weight: 900;
+}
+
+.module h4 { margin: 0 0 5px; font-size: 16px; }
+.module p { margin: 0 0 14px; color: var(--bp-text-muted); font-size: 13px; }
+
+.btn {
+  display: inline-block;
+  padding: 7px 11px;
+  border-radius: 8px;
+  background: var(--bp-green);
+  color: white;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.flow {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+.flow-card {
+  position: relative;
+  padding: 24px;
+  background: white;
+  border: 1px solid var(--bp-border);
+  border-radius: var(--bp-radius-lg);
+  box-shadow: var(--bp-shadow);
+}
+
+.flow-number {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 17px;
+  border-radius: 50%;
+  color: white;
+  background: var(--bp-green);
+  font-weight: 800;
+}
+
+.flow-card h3 { margin: 0 0 7px; font-size: 18px; }
+.flow-card p { margin: 0; color: var(--bp-text-muted); font-size: 14px; }
+
+.code-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.code-card {
+  overflow: hidden;
+  border-radius: var(--bp-radius-lg);
+  border: 1px solid var(--bp-border);
+  box-shadow: var(--bp-shadow);
+  background: #061d13;
+}
+
+.code-card header {
+  padding: 13px 17px;
+  color: #b9d8c7;
+  background: #0a2d1d;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+pre {
+  margin: 0;
+  padding: 22px;
+  overflow: auto;
+  color: #e5f6ec;
+  font: 13px/1.75 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.highlight { color: #69d69b; }
+.muted-code { color: #93aa9e; }
+
+.comparison {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.compare {
+  padding: 26px;
+  border-radius: var(--bp-radius-lg);
+  border: 1px solid var(--bp-border);
+  background: white;
+}
+
+.compare.bad { border-color: #ead8d8; }
+.compare.good { border-color: var(--bp-border-green); }
+
+.compare h3 { margin: 0 0 14px; }
+.compare pre {
+  padding: 17px;
+  border-radius: var(--bp-radius-md);
+  background: var(--bp-background-soft);
+  color: var(--bp-text);
+  font-size: 12px;
+}
+
+.good pre { background: var(--bp-green-soft); }
+
+footer {
+  padding: 45px 0;
+  color: #cce2d6;
+  background: var(--bp-deep);
+}
+
+footer strong { color: white; }
+
+@media (max-width: 850px) {
+  .arch-row, .flow, .comparison, .code-layout { grid-template-columns: 1fr; display: grid; }
+  .arrow { display: none; }
+  .menu-demo { grid-template-columns: 205px 1fr; }
+}
+
+@media (max-width: 620px) {
+  .container { width: min(100% - 24px, 1180px); }
+  .hero { padding-top: 50px; }
+  .architecture, .content { padding: 20px; }
+  .menu-demo { grid-template-columns: 1fr; }
+  .sidebar { min-height: auto; }
+  .module-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+
+<body>
+
+<header class="hero">
+  <div class="container">
+    <span class="eyebrow">BonikPress Architecture</span>
+    <h1>One ecosystem. Many plugins. One clean admin experience.</h1>
+    <p>
+      BonikPress can be built from small, independent plugins while presenting
+      them to store owners as coherent products and modules.
+    </p>
+  </div>
+</header>
+
+<main>
+
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-label">The core idea</div>
+      <h2>Separate the software from the experience.</h2>
+      <p>
+        A plugin can remain an independent WordPress package without needing
+        to create its own top-level WordPress menu.
+      </p>
+    </div>
+
+    <div class="card architecture">
+      <div class="arch-row">
+        <div class="arch-box primary">
+          <h3>BonikPress Admin</h3>
+          <p>Unified navigation and product experience.</p>
+        </div>
+        <div class="arrow">→</div>
+        <div class="arch-box">
+          <h3>Large Product</h3>
+          <p>Example: Bulk Product Edit. Owns the user-facing workflow.</p>
+        </div>
+        <div class="arrow">→</div>
+        <div class="arch-box">
+          <h3>Small Modules</h3>
+          <p>Bulk Price Manager, Stock Manager, SKU Manager, etc.</p>
+        </div>
+      </div>
+
+      <div class="note">
+        <strong>Important:</strong> the folders and the admin menu do not have
+        to mirror each other. Five plugins can appear as one coherent product
+        in the WordPress dashboard.
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-label">What the customer sees</div>
+      <h2>A clean WordPress admin menu</h2>
+      <p>
+        Instead of 100 top-level plugin menus, BonikPress owns one top-level
+        navigation and organizes capabilities by product.
+      </p>
+    </div>
+
+    <div class="card menu-demo">
+      <aside class="sidebar">
+        <div class="wp-title">
+          <span class="wp-dot">W</span>
+          WordPress
+        </div>
+
+        <div class="menu-item">Dashboard</div>
+        <div class="menu-item">WooCommerce</div>
+        <div class="menu-item">Products</div>
+
+        <div class="menu-group">
+          <div class="menu-label">BonikPress</div>
+
+          <div class="menu-item">Dashboard</div>
+
+          <div class="menu-item active">Commerce</div>
+          <div class="menu-item child">Products</div>
+
+          <div class="menu-item child active">Bulk Product Edit</div>
+          <div class="menu-item child" style="margin-left:26px;">Overview</div>
+          <div class="menu-item child active" style="margin-left:26px;">Pricing</div>
+          <div class="menu-item child" style="margin-left:26px;">Stock</div>
+          <div class="menu-item child" style="margin-left:26px;">SKU</div>
+
+          <div class="menu-item child">Shipping</div>
+          <div class="menu-item">Marketing</div>
+          <div class="menu-item">Analytics</div>
+          <div class="menu-item">Settings</div>
+        </div>
+      </aside>
+
+      <section class="content">
+        <div class="breadcrumb">
+          BonikPress / Commerce / Bulk Product Edit / Pricing
+        </div>
+        <h3>Pricing</h3>
+        <p class="content-subtitle">
+          Pricing tools provided by the Bulk Price Manager module.
+        </p>
+
+        <div class="module-grid">
+          <article class="module">
+            <div class="icon">$</div>
+            <h4>Bulk Price Manager</h4>
+            <p>Apply pricing rules to many WooCommerce products at once.</p>
+            <span class="btn">Open</span>
+          </article>
+
+          <article class="module">
+            <div class="icon">%</div>
+            <h4>Dynamic Pricing</h4>
+            <p>Build rules that calculate product prices automatically.</p>
+            <span class="btn">Open</span>
+          </article>
+
+          <article class="module">
+            <div class="icon">↗</div>
+            <h4>Scheduled Pricing</h4>
+            <p>Schedule future price changes and promotional periods.</p>
+            <span class="btn">Open</span>
+          </article>
+
+          <article class="module">
+            <div class="icon">−</div>
+            <h4>Discount Rules</h4>
+            <p>Configure reusable discount conditions for products.</p>
+            <span class="btn">Open</span>
+          </article>
+        </div>
+      </section>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-label">The hierarchy</div>
+      <h2>How the pieces relate to each other</h2>
+      <p>
+        The commercial product hierarchy can be broader than the technical
+        plugin hierarchy.
+      </p>
+    </div>
+
+    <div class="flow">
+      <article class="flow-card">
+        <div class="flow-number">1</div>
+        <h3>Small Plugin</h3>
+        <p>One focused capability. Example: Bulk Price Manager.</p>
+      </article>
+
+      <article class="flow-card">
+        <div class="flow-number">2</div>
+        <h3>Large Product</h3>
+        <p>Combines related capabilities into Bulk Product Edit.</p>
+      </article>
+
+      <article class="flow-card">
+        <div class="flow-number">3</div>
+        <h3>Bundle</h3>
+        <p>Combines multiple products, such as Product + Shipping suites.</p>
+      </article>
+
+      <article class="flow-card">
+        <div class="flow-number">4</div>
+        <h3>Ecosystem</h3>
+        <p>Provides the complete BonikPress commerce platform.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-label">The technical structure</div>
+      <h2>Independent files underneath a unified product</h2>
+      <p>
+        The customer sees one product. WordPress still sees separate plugins.
+      </p>
+    </div>
+
+    <div class="code-layout">
+      <article class="code-card">
+        <header>Actual WordPress installation</header>
+        <pre><span class="muted-code">wp-content/plugins/</span>
+
+<span class="highlight">bonikpress-core/</span>
+bulk-product-edit/
+bulk-price-manager/
+bulk-stock-manager/
+bulk-sku-manager/
+dynamic-pricing/
+scheduled-pricing/
+...
+
+<span class="muted-code">Each package remains independently maintainable.</span></pre>
+      </article>
+
+      <article class="code-card">
+        <header>Customer-facing hierarchy</header>
+        <pre><span class="highlight">BonikPress</span>
+└── Commerce
+    └── Bulk Product Edit
+        ├── Overview
+        ├── Products
+        ├── Pricing
+        ├── Stock
+        └── SKU
+
+<span class="muted-code">The UI does not need to mirror
+the plugin folder structure.</span></pre>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-label">Admin registration</div>
+      <h2>Plugins register capabilities, not top-level menus.</h2>
+      <p>
+        Instead of every plugin calling WordPress's top-level menu API,
+        BonikPress can provide a shared registration API.
+      </p>
+    </div>
+
+    <div class="comparison">
+      <article class="compare bad">
+        <h3>Old approach</h3>
+        <pre>function bpm_add_admin_menu() {
+
+    add_menu_page(
+        'Bulk Price Manager',
+        'Bulk Price Manager',
+        'manage_options',
+        'bulk-price-manager',
+        'bpm_render_admin_page',
+        'dashicons-money-alt',
+        56
+    );
+
+}</pre>
+      </article>
+
+      <article class="compare good">
+        <h3>BonikPress approach</h3>
+        <pre>function bpm_register_admin_page() {
+
+    bonikpress_register_admin_page(
+        array(
+            'product'   => 'bulk-product-edit',
+            'section'   => 'pricing',
+            'slug'      => 'bulk-price-manager',
+            'title'     => 'Bulk Price Manager',
+            'capability'=> 'manage_options',
+            'callback'  => 'bpm_render_admin_page',
+        )
+    );
+
+}</pre>
+      </article>
+    </div>
+
+    <div class="note" style="margin-top:18px;">
+      The <strong>BonikPress Admin API</strong> would be responsible for
+      translating these registrations into WordPress <code>add_menu_page()</code>
+      and <code>add_submenu_page()</code> calls. The individual plugin does
+      not need to own the top-level navigation.
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="card architecture" style="background:var(--bp-deep); color:white;">
+      <div class="section-label" style="color:#72d6a0;">The end goal</div>
+      <h2 style="color:white; max-width:760px;">
+        100 plugins underneath. A handful of products above.
+      </h2>
+      <p style="max-width:760px; color:#c9dfd2;">
+        Build the software as modular capabilities, compose those capabilities
+        into large products, and let BonikPress provide the unified experience.
+        This keeps the code maintainable without making the WordPress admin
+        overwhelming.
+      </p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="container">
+    <strong>BonikPress</strong> — Modular commerce infrastructure with a unified admin experience.
+  </div>
+</footer>
+
+</body>
+</html>
