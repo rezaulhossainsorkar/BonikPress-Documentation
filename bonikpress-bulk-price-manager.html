@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BonikPress Bulk Price Manager — Documentation</title>
+<style>
+:root{
+  --bg:#f7fbf8;--surface:#fff;--ink:#10231a;--muted:#64756b;
+  --green:#159447;--green-dark:#0b7335;--mint:#e8f7ed;
+  --line:#dce9e0;--soft:#f0f8f2;--shadow:0 22px 65px rgba(24,74,43,.09);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+body:before{
+  content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:radial-gradient(circle at 88% 7%,#dff4e6 0,transparent 28%),
+             radial-gradient(circle at 4% 55%,#edf9f1 0,transparent 25%);
+}
+.slide{
+  min-height:100vh;padding:78px 8vw;display:flex;flex-direction:column;
+  justify-content:center;position:relative;border-bottom:1px solid var(--line);
+}
+.topbar{
+  position:absolute;top:28px;left:8vw;right:8vw;display:flex;
+  justify-content:space-between;align-items:center;font-size:12px;
+  font-weight:800;letter-spacing:.1em;
+}
+.logo{display:flex;align-items:center;gap:10px}
+.mark{width:28px;height:28px;border-radius:9px;background:var(--green);position:relative}
+.mark:after{content:"";position:absolute;width:8px;height:8px;border:3px solid #fff;border-radius:50%;left:7px;top:7px}
+.pill{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 12px;color:var(--muted)}
+.kicker{color:var(--green-dark);font-size:12px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;margin-bottom:16px}
+h1{font-size:clamp(50px,8vw,105px);line-height:.91;letter-spacing:-.065em;margin:0 0 25px;max-width:1050px}
+h2{font-size:clamp(38px,5vw,68px);line-height:.98;letter-spacing:-.05em;margin:0 0 18px}
+h3{font-size:21px;margin:0 0 9px}
+p{font-size:18px;line-height:1.65;color:var(--muted);max-width:850px;margin:0 0 18px}
+.hero p{font-size:21px}
+.num{position:absolute;right:8vw;top:72px;color:#bfd4c6;font-size:52px;font-weight:900;letter-spacing:-.05em}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:30px}
+.grid.two{grid-template-columns:repeat(2,1fr)}
+.card{
+  background:rgba(255,255,255,.94);border:1px solid var(--line);
+  border-radius:24px;padding:27px;box-shadow:var(--shadow);
+}
+.icon{
+  width:44px;height:44px;border-radius:13px;background:var(--mint);
+  display:grid;place-items:center;color:var(--green-dark);font-weight:900;margin-bottom:19px
+}
+.tag{
+  display:inline-block;padding:7px 10px;border-radius:999px;background:var(--mint);
+  color:var(--green-dark);font-size:11px;font-weight:800;letter-spacing:.08em;margin-bottom:14px
+}
+.diagram{margin-top:36px;display:flex;flex-direction:column;align-items:center}
+.node{
+  min-width:190px;padding:17px 22px;background:#fff;border:1px solid var(--line);
+  border-radius:17px;text-align:center;font-weight:800;box-shadow:var(--shadow);
+}
+.node.primary{background:#103a25;color:#fff;border-color:#103a25}
+.node.green{border-color:#a7d9b8}
+.node.small{min-width:145px;font-size:14px;padding:14px 17px}
+.connector{height:32px;width:2px;background:#b7d2c1}
+.branch{width:72%;height:25px;border-top:2px solid #b7d2c1;position:relative}
+.branch:before,.branch:after{content:"";position:absolute;top:-2px;height:25px;width:2px;background:#b7d2c1}
+.branch:before{left:0}.branch:after{right:0}
+.row{display:flex;justify-content:center;gap:16px;flex-wrap:wrap}
+.callout{
+  margin-top:27px;padding:21px 24px;background:#eef8f1;
+  border-left:4px solid var(--green);border-radius:0 17px 17px 0;
+  color:#2c4938;line-height:1.6;max-width:950px
+}
+.code{
+  background:#10231a;color:#dcefe3;border-radius:20px;padding:25px;
+  overflow:auto;margin-top:28px;box-shadow:var(--shadow)
+}
+pre{margin:0;font:14px/1.7 Consolas,Monaco,monospace}
+.flow{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;margin:32px 0}
+.arrow{color:#9ab3a3;font-size:22px}
+.table-wrap{overflow:auto;margin-top:28px}
+table{width:100%;min-width:700px;border-collapse:separate;border-spacing:0;background:#fff;border:1px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:var(--shadow)}
+th,td{padding:15px 16px;text-align:left;border-bottom:1px solid var(--line)}
+th{background:var(--soft);font-size:11px;text-transform:uppercase;letter-spacing:.08em}
+td{color:var(--muted)}
+tr:last-child td{border-bottom:0}
+.ok{color:var(--green-dark);font-weight:900}
+.pending{color:#9a7a36;font-weight:800}
+.footer{position:absolute;bottom:24px;left:8vw;color:#8ca097;font-size:12px}
+@media(max-width:850px){
+  .slide{padding:62px 6vw}.topbar{left:6vw;right:6vw}.num{right:6vw}
+  .grid,.grid.two{grid-template-columns:1fr}.node{min-width:145px}
+}
+</style>
+</head>
+<body>
+
+<section class="slide">
+<div class="topbar"><div class="logo"><span class="mark"></span>BONIKPRESS</div><div class="pill">PRODUCT DOCUMENTATION</div></div>
+<div class="kicker">Commerce Ecosystem · Large Plugin</div>
+<h1>Bulk Price<br><span style="color:var(--green)">Manager.</span></h1>
+<p>A WooCommerce pricing management plugin designed to let store owners manage product prices in bulk through flexible, rule-based operations.</p>
+<div class="flow">
+  <div class="node">WooCommerce</div><div class="arrow">→</div>
+  <div class="node green">Bulk Price Manager</div><div class="arrow">→</div>
+  <div class="node primary">Bulk Pricing Operations</div>
+</div>
+<div class="callout"><strong>BonikPress product:</strong> Bulk Price Manager is part of the Commerce ecosystem and is designed as a substantial standalone pricing-management product.</div>
+</section>
+
+<section class="slide">
+<div class="num">02</div><div class="kicker">Product position</div><h2>Where Bulk Price Manager fits.</h2>
+<p>Bulk Price Manager is a Commerce ecosystem product. It focuses specifically on product pricing rather than attempting to become an entire product-management or inventory platform.</p>
+<div class="diagram">
+<div class="node primary">BONIKPRESS</div><div class="connector"></div><div class="branch"></div>
+<div class="row">
+  <div><div class="node green">COMMERCE</div><div class="connector"></div><div class="node">BULK PRICE MANAGER</div></div>
+  <div><div class="node">PAYMENTS</div></div>
+  <div><div class="node">ADD-ONS</div></div>
+</div>
+</div>
+<div class="callout">The plugin can later participate in BonikPress's compatibility-driven Add-ons architecture, while remaining an independent product itself.</div>
+</section>
+
+<section class="slide">
+<div class="num">03</div><div class="kicker">Core purpose</div><h2>Manage pricing at scale.</h2>
+<p>The core problem is simple: editing WooCommerce product prices one product at a time does not scale well. Bulk Price Manager provides a structured interface for selecting products, inspecting them, and applying pricing operations in bulk.</p>
+<div class="grid three">
+<div class="card"><div class="icon">1</div><span class="tag">SELECT</span><h3>Find the right products</h3><p>Use product filters to narrow the working set before performing a pricing operation.</p></div>
+<div class="card"><div class="icon">2</div><span class="tag">CALCULATE</span><h3>Apply pricing rules</h3><p>The pricing engine is intended to support configurable calculations instead of simple blind value replacement.</p></div>
+<div class="card"><div class="icon">3</div><span class="tag">UPDATE</span><h3>Change prices in bulk</h3><p>Apply the resulting pricing operation across the selected WooCommerce products.</p></div>
+</div>
+</section>
+
+<section class="slide">
+<div class="num">04</div><div class="kicker">Admin workflow</div><h2>A focused product-management workspace.</h2>
+<div class="diagram">
+<div class="node primary">Bulk Price Manager Admin</div><div class="connector"></div><div class="branch" style="width:82%"></div>
+<div class="row">
+<div class="node small">Filters</div>
+<div class="node small">Product Table</div>
+<div class="node small">Bulk Actions</div>
+</div>
+</div>
+<div class="grid">
+<div class="card"><span class="tag">FILTERS</span><h3>Target products</h3><p>Search and filter products by relevant WooCommerce properties before working on them.</p></div>
+<div class="card"><span class="tag">TABLE</span><h3>Inspect products</h3><p>Review the working product set with information such as product name, SKU, current price, stock, and status.</p></div>
+</div>
+</section>
+
+<section class="slide">
+<div class="num">05</div><div class="kicker">Current filtering system</div><h2>Build the working product set.</h2>
+<p>The current implementation separates filter definitions from the WooCommerce product-query construction, keeping the filtering logic understandable and reusable.</p>
+<div class="grid">
+<div class="card"><div class="icon">⌕</div><h3>Product search</h3><p>Search field for narrowing the product set.</p></div>
+<div class="card"><div class="icon">C</div><h3>Category</h3><p>Filter products by WooCommerce product category.</p></div>
+<div class="card"><div class="icon">T</div><h3>Product type</h3><p>Filter according to WooCommerce product type.</p></div>
+<div class="card"><div class="icon">S</div><h3>Stock status</h3><p>Target products according to stock availability.</p></div>
+<div class="card"><div class="icon">P</div><h3>Product status</h3><p>Filter products by their WooCommerce status.</p></div>
+</div>
+<div class="callout">The filtering layer builds arguments for <strong>wc_get_products()</strong>, keeping WooCommerce responsible for retrieving the matching products.</div>
+</section>
+
+<section class="slide">
+<div class="num">06</div><div class="kicker">Current data architecture</div><h2>Simple separation of responsibility.</h2>
+<p>The plugin uses small procedural functions and dedicated include files rather than introducing unnecessary abstractions.</p>
+<div class="diagram">
+<div class="node primary">Admin View</div><div class="connector"></div>
+<div class="row"><div class="node">bpm_get_products()</div><div class="node">Filter View</div></div>
+<div class="connector"></div>
+<div class="row"><div class="node small">bpm_build_product_query_args()</div><div class="node small">WooCommerce API</div></div>
+<div class="connector"></div><div class="node green">WooCommerce Products</div>
+</div>
+<div class="code"><pre>function bpm_get_products( $filters = array() ) {
+    $args = bpm_build_product_query_args( $filters );
+    return wc_get_products( $args );
+}</pre></div>
+</section>
+
+<section class="slide">
+<div class="num">07</div><div class="kicker">Project structure</div><h2>Organized around clear responsibilities.</h2>
+<p>The current plugin structure separates admin presentation from WooCommerce-specific helper logic.</p>
+<div class="grid two">
+<div class="card">
+<span class="tag">ADMIN / VIEWS</span>
+<h3>Interface layer</h3>
+<p>The admin views are split into focused pieces:</p>
+<ul style="color:var(--muted);line-height:1.9">
+<li>header.php</li><li>filters.php</li><li>bulk-actions.php</li><li>product-table.php</li><li>footer.php</li>
+</ul>
+</div>
+<div class="card">
+<span class="tag">INCLUDES</span>
+<h3>WooCommerce helpers</h3>
+<p>Dedicated files provide reusable WooCommerce-related information and query behavior, including:</p>
+<ul style="color:var(--muted);line-height:1.9">
+<li>wc-categories.php</li><li>wc-product-types.php</li><li>wc-stock-statuses.php</li><li>wc-product-filters.php</li><li>wc-product-request.php</li>
+</ul>
+</div>
+</div>
+</section>
+
+<section class="slide">
+<div class="num">08</div><div class="kicker">Architecture philosophy</div><h2>Simple by design.</h2>
+<p>Bulk Price Manager is being built as a learning-friendly, maintainable WordPress plugin rather than an unnecessarily abstract framework.</p>
+<div class="grid three">
+<div class="card"><div class="icon">P</div><h3>Procedural PHP</h3><p>The project intentionally uses procedural PHP and straightforward WordPress patterns.</p></div>
+<div class="card"><div class="icon">W</div><h3>WordPress standards</h3><p>Follow WordPress Coding Standards and use native WordPress/WooCommerce APIs where appropriate.</p></div>
+<div class="card"><div class="icon">M</div><h3>Incremental design</h3><p>Features are introduced one layer at a time, prioritizing clarity and maintainability over cleverness.</p></div>
+</div>
+<div class="callout">The architecture should become more sophisticated only when the product genuinely requires it — not simply because a more complex pattern is available.</div>
+</section>
+
+<section class="slide">
+<div class="num">09</div><div class="kicker">Pricing engine</div><h2>The heart of the product.</h2>
+<p>The long-term purpose of the plugin is not merely to perform bulk edits. Its core value is a flexible pricing engine capable of turning configurable rules into controlled product-price changes.</p>
+<div class="diagram">
+<div class="node">Product Selection</div><div class="connector"></div>
+<div class="node green">Pricing Rules</div><div class="connector"></div>
+<div class="node">Price Calculation</div><div class="connector"></div>
+<div class="node primary">Bulk Price Update</div>
+</div>
+<div class="grid">
+<div class="card"><span class="tag">INPUT</span><h3>Products</h3><p>The filtered product set becomes the scope of the pricing operation.</p></div>
+<div class="card"><span class="tag">ENGINE</span><h3>Rules</h3><p>Pricing rules determine how current product prices should be transformed.</p></div>
+<div class="card"><span class="tag">OUTPUT</span><h3>Updated prices</h3><p>The calculated results are applied to the targeted WooCommerce products.</p></div>
+</div>
+</section>
+
+<section class="slide">
+<div class="num">10</div><div class="kicker">Performance direction</div><h2>From full-page operations to a smoother workspace.</h2>
+<p>As the product grows, the admin interface is intended to move toward AJAX-driven data operations so the table can work with limited data at a time instead of rendering everything unnecessarily.</p>
+<div class="flow">
+<div class="node">Filters</div><div class="arrow">→</div>
+<div class="node">AJAX Request</div><div class="arrow">→</div>
+<div class="node green">Product Data</div><div class="arrow">→</div>
+<div class="node">Table Update</div>
+</div>
+<div class="callout">The goal is smoother filtering, search, pagination, and data-per-page behavior while keeping the interface responsive as product catalogs become larger.</div>
+</section>
+
+<section class="slide">
+<div class="num">11</div><div class="kicker">Product roadmap</div><h2>Build the engine in layers.</h2>
+<div class="grid">
+<div class="card"><span class="tag">FOUNDATION</span><h3>Product selection</h3><p>Filters, product retrieval, and the admin product table establish the working set.</p></div>
+<div class="card"><span class="tag">NEXT</span><h3>AJAX data workflow</h3><p>Introduce efficient asynchronous table and filtering operations for a better admin experience.</p></div>
+<div class="card"><span class="tag">CORE</span><h3>Pricing engine</h3><p>Implement configurable calculations and controlled bulk price updates.</p></div>
+</div>
+<div class="flow"><div class="node">Select</div><div class="arrow">→</div><div class="node">Filter</div><div class="arrow">→</div><div class="node">Calculate</div><div class="arrow">→</div><div class="node primary">Update</div></div>
+</section>
+
+<section class="slide">
+<div class="num">12</div><div class="kicker">Product identity</div><h2>Bulk Price Manager by BonikPress.</h2>
+<p>A focused Commerce product built around one clear objective: making WooCommerce pricing management scalable, controlled, and extensible.</p>
+<div class="grid two">
+<div class="card">
+<span class="tag">CURRENT FOUNDATION</span>
+<h3>What exists</h3>
+<ul style="color:var(--muted);line-height:1.9">
+<li>WooCommerce product retrieval</li>
+<li>Product filtering system</li>
+<li>Admin product table</li>
+<li>Product metadata display</li>
+<li>Separated query/filter helpers</li>
+<li>Procedural WordPress architecture</li>
+</ul>
+</div>
+<div class="card">
+<span class="tag">DIRECTION</span>
+<h3>What it is becoming</h3>
+<ul style="color:var(--muted);line-height:1.9">
+<li>AJAX-powered product workspace</li>
+<li>Flexible pricing engine</li>
+<li>Rule-based bulk calculations</li>
+<li>Reliable bulk price updates</li>
+<li>Scalable administration</li>
+<li>Future BonikPress extensibility</li>
+</ul>
+</div>
+</div>
+<div class="callout"><strong>BonikPress Commerce:</strong> Bulk Price Manager is the first building block toward a broader family of professional WooCommerce business tools.</div>
+<div class="footer">BONIKPRESS · Bulk Price Manager Documentation</div>
+</section>
+
+</body>
+</html>
