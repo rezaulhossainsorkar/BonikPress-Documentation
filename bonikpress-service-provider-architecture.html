@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BonikPress — Service Provider Architecture</title>
+<style>
+:root{
+  --bp-green:#0B7A3B;--bp-green-light:#16A052;--bp-green-pale:#DFF6E8;--bp-green-soft:#E8F7ED;
+  --bp-deep:#063C25;--bp-deep-2:#073B25;
+  --bp-text:#13231B;--bp-text-muted:#66766D;--bp-text-light:#8B9891;
+  --bp-white:#FFFFFF;--bp-background:#FBFEFC;--bp-background-soft:#F6FAF7;--bp-background-green:#F1F9F3;
+  --bp-border:#E2EBE5;--bp-border-green:#C9E5D2;
+  --bp-shadow:0 18px 55px rgba(7,75,40,.09);--bp-shadow-hover:0 25px 65px rgba(7,75,40,.13);
+  --bp-radius-sm:10px;--bp-radius-md:16px;--bp-radius-lg:21px;--bp-radius-xl:24px;--bp-radius-xxl:28px;
+}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--bp-text);background:var(--bp-background);overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.34;background-image:linear-gradient(var(--bp-border) 1px,transparent 1px),linear-gradient(90deg,var(--bp-border) 1px,transparent 1px);background-size:48px 48px;mask-image:linear-gradient(to bottom,black,transparent 75%);z-index:-2}
+body:after{content:"";position:fixed;width:520px;height:520px;border-radius:50%;background:var(--bp-green-pale);filter:blur(90px);right:-220px;top:90px;opacity:.55;z-index:-1}
+a{color:inherit;text-decoration:none}.container{width:min(1180px,calc(100% - 40px));margin:auto}
+.slide{min-height:100vh;padding:86px 0 72px;display:flex;align-items:center;position:relative}
+.kicker{display:inline-flex;align-items:center;gap:9px;color:var(--bp-green);font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}
+.kicker:before{content:"";width:28px;height:2px;background:var(--bp-green-light)}
+h1{font-size:clamp(52px,7vw,92px);line-height:.94;letter-spacing:-.065em;margin:22px 0;font-weight:850}
+h2{font-size:clamp(38px,5vw,64px);line-height:1;letter-spacing:-.045em;margin:12px 0 20px}
+h3{margin:0 0 10px;font-size:21px;letter-spacing:-.02em}p{font-size:17px;line-height:1.7;color:var(--bp-text-muted);margin:0}
+.lead{font-size:21px;max-width:760px}.muted{color:var(--bp-text-muted)}
+.hero{background:radial-gradient(circle at 78% 35%,var(--bp-green-soft),transparent 33%),linear-gradient(135deg,var(--bp-background),var(--bp-background-green))}
+.hero-grid{display:grid;grid-template-columns:1.02fr .98fr;gap:55px;align-items:center}
+.badge{display:inline-flex;padding:9px 13px;border:1px solid var(--bp-border-green);border-radius:999px;background:rgba(255,255,255,.8);font-weight:700;font-size:13px;color:var(--bp-deep);box-shadow:var(--bp-shadow)}
+.hero-visual{position:relative;min-height:500px;display:grid;place-items:center}
+.orbit{position:absolute;width:410px;height:410px;border:1px dashed var(--bp-border-green);border-radius:50%;animation:spin 26s linear infinite}
+.orbit:before,.orbit:after{content:"";position:absolute;width:10px;height:10px;border-radius:50%;background:var(--bp-green-light);box-shadow:0 0 0 8px var(--bp-green-pale)}
+.orbit:before{top:22px;left:85px}.orbit:after{bottom:35px;right:62px}
+.core{width:190px;height:190px;border-radius:50%;background:linear-gradient(145deg,var(--bp-deep),var(--bp-green));display:grid;place-items:center;text-align:center;color:white;box-shadow:0 30px 80px rgba(6,60,37,.25);position:relative;z-index:2;animation:pulse 4s ease-in-out infinite}
+.core strong{font-size:25px;line-height:1.05}.core small{opacity:.72}
+.node{position:absolute;padding:13px 16px;border:1px solid var(--bp-border);background:rgba(255,255,255,.92);border-radius:var(--bp-radius-md);box-shadow:var(--bp-shadow);font-weight:750;font-size:14px;animation:float 5s ease-in-out infinite}
+.n1{top:8%;left:8%;animation-delay:.2s}.n2{top:15%;right:2%;animation-delay:.8s}.n3{bottom:12%;left:4%;animation-delay:1.4s}.n4{bottom:7%;right:8%;animation-delay:2s}
+.progress{position:fixed;top:0;left:0;height:4px;background:var(--bp-green-light);width:0;z-index:20;transition:width .1s}
+.nav{position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:19;background:rgba(255,255,255,.78);backdrop-filter:blur(16px);border:1px solid var(--bp-border);border-radius:999px;padding:7px;display:flex;gap:4px;box-shadow:var(--bp-shadow)}
+.nav a{font-size:12px;font-weight:750;padding:9px 12px;border-radius:999px;color:var(--bp-text-muted)}.nav a:hover,.nav a.active{background:var(--bp-deep);color:white}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.card{background:rgba(255,255,255,.86);border:1px solid var(--bp-border);border-radius:var(--bp-radius-lg);padding:26px;box-shadow:var(--bp-shadow);transition:.35s;position:relative;overflow:hidden}
+.card:hover{transform:translateY(-7px);box-shadow:var(--bp-shadow-hover);border-color:var(--bp-border-green)}
+.card:after{content:"";position:absolute;inset:auto -40px -70px auto;width:140px;height:140px;border-radius:50%;background:var(--bp-green-pale);opacity:.65}
+.num{font-size:12px;font-weight:850;color:var(--bp-green);letter-spacing:.12em;margin-bottom:20px}.icon{font-size:30px;margin-bottom:16px}
+.pill{display:inline-block;padding:6px 9px;background:var(--bp-green-soft);color:var(--bp-green);border-radius:999px;font-size:11px;font-weight:800;margin:4px 4px 0 0}
+.arch{background:var(--bp-deep);color:white;border-radius:var(--bp-radius-xxl);padding:34px;box-shadow:0 30px 90px rgba(6,60,37,.22);overflow:hidden;position:relative}
+.arch:before{content:"";position:absolute;width:500px;height:500px;border:1px solid rgba(255,255,255,.08);border-radius:50%;right:-160px;top:-230px}
+.layer{border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.055);border-radius:18px;padding:18px;margin:13px 0;position:relative}
+.layer strong{display:block;margin-bottom:7px}.layer span{font-size:13px;color:rgba(255,255,255,.65)}
+.arrow{height:28px;display:grid;place-items:center;color:#7ad89f;font-size:20px}
+.flow{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;align-items:center}.flow .card{min-height:145px}
+.timeline{border-left:2px solid var(--bp-border-green);margin:28px 0 0 10px;padding-left:28px}.step{position:relative;margin:0 0 28px}.step:before{content:"";position:absolute;left:-38px;top:5px;width:16px;height:16px;border-radius:50%;background:var(--bp-green-light);box-shadow:0 0 0 6px var(--bp-green-pale)}
+.quote{padding:30px;border-radius:var(--bp-radius-xl);background:var(--bp-green-soft);border:1px solid var(--bp-border-green);font-size:24px;line-height:1.35;font-weight:760;letter-spacing:-.02em}
+.provider-title{display:flex;align-items:center;gap:14px}.provider-title .dot{width:13px;height:13px;border-radius:50%;background:var(--bp-green-light);box-shadow:0 0 0 7px var(--bp-green-pale)}
+ul{padding-left:20px;color:var(--bp-text-muted);line-height:1.9}li::marker{color:var(--bp-green)}
+footer{padding:50px 0 80px;text-align:center;color:var(--bp-text-light);font-size:13px}
+.reveal{opacity:0;transform:translateY(35px);transition:opacity .8s ease,transform .8s ease}.reveal.show{opacity:1;transform:none}
+@keyframes float{50%{transform:translateY(-12px)}}@keyframes pulse{50%{transform:scale(1.035);box-shadow:0 38px 95px rgba(6,60,37,.3)}}@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:850px){.nav{display:none}.hero-grid,.grid-2{grid-template-columns:1fr}.grid,.flow{grid-template-columns:1fr 1fr}.hero-visual{min-height:390px}.orbit{width:310px;height:310px}}
+@media(max-width:560px){.container{width:min(100% - 26px,1180px)}.slide{padding:70px 0 55px}.grid,.flow{grid-template-columns:1fr}.hero-visual{transform:scale(.8);margin:-30px 0}.card{padding:22px}}
+</style>
+</head>
+<body>
+<div class="progress"></div>
+<nav class="nav">
+<a href="#vision">Vision</a><a href="#problem">Problem</a><a href="#architecture">Architecture</a><a href="#providers">Providers</a><a href="#rules">Rules</a><a href="#roadmap">Roadmap</a>
+</nav>
+
+<section class="slide hero" id="vision">
+<div class="container hero-grid">
+<div class="reveal">
+<span class="badge">BonikPress Service Providers · 2026</span>
+<h1>Build once.<br><span style="color:var(--bp-green)">Reuse everywhere.</span></h1>
+<p class="lead">A service-provider architecture for a family of focused B2B WordPress and WooCommerce plugins — sharing infrastructure without sharing business logic.</p>
+<div style="margin-top:28px"><span class="pill">Modular</span><span class="pill">Reusable</span><span class="pill">Decoupled</span><span class="pill">Scalable</span></div>
+</div>
+<div class="hero-visual reveal">
+<div class="orbit"></div>
+<div class="core"><div><small>BONIKPRESS</small><br><strong>Core<br>Services</strong></div></div>
+<div class="node n1">Storage & Data</div><div class="node n2">Requests & AJAX</div><div class="node n3">Shared UI</div><div class="node n4">Tasks & Events</div>
+</div>
+</div>
+</section>
+
+<section class="slide" id="problem">
+<div class="container">
+<div class="reveal"><span class="kicker">01 · The problem</span><h2>Don't rebuild the same engine in every plugin.</h2><p class="lead">BonikPress is intended to grow into an ecosystem of specialized commerce tools. The infrastructure underneath those tools should not be duplicated dozens of times.</p></div>
+<div class="grid" style="margin-top:40px">
+<div class="card reveal"><div class="num">DUPLICATION</div><h3>Same code, different plugin</h3><p>Product Price, SKU, Stock, Category and Order tools can all need similar retrieval, AJAX, tables and validation.</p></div>
+<div class="card reveal"><div class="num">DRIFT</div><h3>Every copy evolves differently</h3><p>When shared code is copied, bug fixes, security improvements and performance optimizations must be repeated.</p></div>
+<div class="card reveal"><div class="num">COUPLING</div><h3>Plugins become harder to connect</h3><p>Direct dependencies between business plugins make the ecosystem increasingly difficult to maintain.</p></div>
+</div>
+<div class="quote reveal" style="margin-top:28px">The answer is not one giant plugin. It is a small set of shared providers underneath many focused plugins.</div>
+</div>
+</section>
+
+<section class="slide" id="architecture">
+<div class="container">
+<div class="reveal"><span class="kicker">02 · Architecture</span><h2>Providers below. Business plugins above.</h2><p class="lead">The service layer owns common infrastructure. Specialized plugins own domain-specific behavior.</p></div>
+<div class="arch reveal" style="margin-top:38px">
+<div class="layer"><strong>BonikPress Core Manager</strong><span>Ecosystem foundation · registration · dependencies · compatibility · capabilities</span></div>
+<div class="arrow">↓</div>
+<div class="layer"><strong>Shared Service Provider Layer</strong><span>Data Manager · Request Manager · UI Manager · Task & Event Manager</span></div>
+<div class="arrow">↓</div>
+<div class="layer"><strong>Specialized B2B Plugins</strong><span>Price · SKU · Stock · Category · Orders · Shipping Queue · Promotions · Marketing</span></div>
+<div class="arrow">↓</div>
+<div class="layer"><strong>WordPress / WooCommerce</strong><span>The underlying platform and commerce data</span></div>
+</div>
+</div>
+</section>
+
+<section class="slide" id="providers">
+<div class="container">
+<div class="reveal"><span class="kicker">03 · The five providers</span><h2>A deliberately narrow foundation.</h2><p class="lead">Only create a provider when the responsibility is broad, reusable and worth centralizing.</p></div>
+<div class="grid" style="margin-top:35px">
+<div class="card reveal"><div class="num">01</div><div class="provider-title"><span class="dot"></span><h3>Core Manager</h3></div><p>Foundation of the ecosystem.</p><ul><li>Plugin/provider registration</li><li>Dependencies & compatibility</li><li>Capabilities</li><li>Shared ecosystem configuration</li></ul></div>
+<div class="card reveal"><div class="num">02</div><div class="provider-title"><span class="dot"></span><h3>Data Manager</h3></div><p>One gateway to platform data.</p><ul><li>Retrieval & CRUD</li><li>Queries, filtering, pagination</li><li>Metadata & custom tables</li><li>Caching & normalization</li></ul></div>
+<div class="card reveal"><div class="num">03</div><div class="provider-title"><span class="dot"></span><h3>Request Manager</h3></div><p>One request lifecycle.</p><ul><li>AJAX & REST</li><li>Parsing & sanitization</li><li>Nonce/security checks</li><li>Validation & responses</li></ul></div>
+<div class="card reveal"><div class="num">04</div><div class="provider-title"><span class="dot"></span><h3>UI Manager</h3></div><p>One reusable admin experience.</p><ul><li>Tables & filters</li><li>Search & pagination</li><li>Forms & modals</li><li>Notices & components</li></ul></div>
+<div class="card reveal"><div class="num">05</div><div class="provider-title"><span class="dot"></span><h3>Task & Event Manager</h3></div><p>Work later; react cleanly.</p><ul><li>Queues & background jobs</li><li>Scheduling & retries</li><li>Ecosystem events</li><li>Decoupled communication</li></ul></div>
+<div class="card reveal" style="background:var(--bp-deep);color:white;border-color:var(--bp-deep)"><div class="num" style="color:#8ce2ae">DESIGN RULE</div><h3>Five providers. No infrastructure sprawl.</h3><p style="color:rgba(255,255,255,.7)">If a capability naturally belongs inside one provider, do not create another plugin for it.</p></div>
+</div>
+</div>
+</section>
+
+<section class="slide">
+<div class="container">
+<div class="reveal"><span class="kicker">04 · How they work together</span><h2>A request should travel through a predictable path.</h2></div>
+<div class="flow" style="margin-top:38px">
+<div class="card reveal"><div class="num">01 · USER</div><h3>Admin action</h3><p>User searches, filters, edits or launches a bulk operation.</p></div>
+<div class="card reveal"><div class="num">02 · REQUEST</div><h3>Request Manager</h3><p>Receives, validates and authorizes the request.</p></div>
+<div class="card reveal"><div class="num">03 · DATA</div><h3>Data Manager</h3><p>Retrieves or modifies the required WooCommerce data.</p></div>
+<div class="card reveal"><div class="num">04 · TASK / EVENT</div><h3>Async ecosystem</h3><p>Large work is queued; important changes can emit events.</p></div>
+</div>
+<div class="arch reveal" style="margin-top:28px">
+<div class="layer"><strong>Example · Bulk Price Manager</strong><span>User filters products → UI Manager renders the table → Request Manager handles AJAX → Data Manager retrieves products → Task Manager processes large updates → Event system broadcasts price changes.</span></div>
+</div>
+</div>
+</section>
+
+<section class="slide">
+<div class="container">
+<div class="reveal"><span class="kicker">05 · Why this scales</span><h2>Specialized plugins become smaller and smarter.</h2></div>
+<div class="grid-2" style="margin-top:35px">
+<div class="card reveal"><h3>Price Manager focuses on pricing</h3><p>Rules, calculations, price adjustments, bulk pricing UX and price-specific business logic.</p><div style="margin-top:15px"><span class="pill">Business logic</span><span class="pill">Pricing rules</span></div></div>
+<div class="card reveal"><h3>SKU Manager focuses on SKUs</h3><p>SKU generation, editing, validation rules and SKU-specific workflows — without rebuilding data infrastructure.</p><div style="margin-top:15px"><span class="pill">SKU rules</span><span class="pill">Business logic</span></div></div>
+<div class="card reveal"><h3>Stock Manager focuses on inventory</h3><p>Stock adjustments, inventory rules, bulk operations and stock-specific workflows.</p><div style="margin-top:15px"><span class="pill">Inventory</span><span class="pill">Bulk operations</span></div></div>
+<div class="card reveal"><h3>Order Manager focuses on orders</h3><p>Order workflows, statuses, operations and B2B order management — consuming the same underlying services.</p><div style="margin-top:15px"><span class="pill">Orders</span><span class="pill">Workflows</span></div></div>
+</div>
+</div>
+</section>
+
+<section class="slide" id="rules">
+<div class="container">
+<div class="reveal"><span class="kicker">06 · Architectural rules</span><h2>Boundaries matter more than the number of plugins.</h2></div>
+<div class="timeline">
+<div class="step reveal"><h3>Providers provide infrastructure.</h3><p>They should solve reusable technical problems, not understand product-pricing or inventory business rules.</p></div>
+<div class="step reveal"><h3>Specialized plugins provide business functionality.</h3><p>A Price Manager decides what a price should become. It should not decide how every product is retrieved.</p></div>
+<div class="step reveal"><h3>Prefer composition over duplication.</h3><p>Build specialized functionality by consuming providers rather than copying their internals.</p></div>
+<div class="step reveal"><h3>Keep the provider count intentionally small.</h3><p>New providers should be introduced only when a responsibility becomes a genuine architectural boundary.</p></div>
+<div class="step reveal"><h3>Keep providers loosely coupled.</h3><p>A provider should expose a stable contract so the implementation can evolve without forcing every plugin to change.</p></div>
+</div>
+</div>
+</section>
+
+<section class="slide" id="roadmap">
+<div class="container">
+<div class="reveal"><span class="kicker">07 · Planning</span><h2>Build the foundation before multiplying plugins.</h2></div>
+<div class="grid" style="margin-top:35px">
+<div class="card reveal"><div class="num">PHASE 01</div><h3>Core + Data</h3><p>Establish the ecosystem lifecycle and a stable data-access contract. Migrate the current Bulk Price Manager to it.</p></div>
+<div class="card reveal"><div class="num">PHASE 02</div><h3>Request + UI</h3><p>Centralize AJAX, validation and the reusable admin table/filter experience.</p></div>
+<div class="card reveal"><div class="num">PHASE 03</div><h3>Task + Event</h3><p>Add safe background processing and decoupled communication for large operations and integrations.</p></div>
+<div class="card reveal"><div class="num">PHASE 04</div><h3>Specialized expansion</h3><p>Build SKU, Stock, Category, Order, Shipping and Promotion tools on the shared foundation.</p></div>
+<div class="card reveal"><div class="num">PHASE 05</div><h3>Connection Manager</h3><p>Turn the growing family into selectable bundles, suites and a complete BonikPress ecosystem toolkit.</p></div>
+<div class="card reveal" style="background:var(--bp-green-soft)"><div class="num">SUCCESS CRITERION</div><h3>New plugins should feel cheap to build.</h3><p>If every new plugin keeps recreating infrastructure, the provider architecture is not doing its job.</p></div>
+</div>
+</div>
+</section>
+
+<section class="slide">
+<div class="container">
+<div class="arch reveal">
+<div class="kicker" style="color:#8ce2ae">FINAL SUMMARY</div>
+<h2 style="color:white;margin-top:18px">One ecosystem.<br>Five foundations.<br>Many focused tools.</h2>
+<p style="color:rgba(255,255,255,.72);max-width:760px">BonikPress can grow from individual commerce utilities into a coherent B2B platform by centralizing infrastructure while preserving business logic inside focused plugins.</p>
+<div class="grid" style="margin-top:30px">
+<div class="layer"><strong>Core Manager</strong><span>Foundation</span></div>
+<div class="layer"><strong>Data Manager</strong><span>Data</span></div>
+<div class="layer"><strong>Request Manager</strong><span>Communication</span></div>
+<div class="layer"><strong>UI Manager</strong><span>Experience</span></div>
+<div class="layer"><strong>Task & Event Manager</strong><span>Async + communication</span></div>
+<div class="layer"><strong>Specialized Plugins</strong><span>Business value</span></div>
+</div>
+</div>
+</div>
+</section>
+
+<footer>BonikPress · Service Provider Architecture · Designed as an evolving technical blueprint</footer>
+
+<script>
+const progress=document.querySelector('.progress');
+const reveals=document.querySelectorAll('.reveal');
+const links=[...document.querySelectorAll('.nav a')];
+const sections=[...document.querySelectorAll('section[id]')];
+const observer=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('show')});
+},{threshold:.12});
+reveals.forEach(el=>observer.observe(el));
+window.addEventListener('scroll',()=>{
+  const h=document.documentElement.scrollHeight-innerHeight;
+  progress.style.width=(scrollY/h*100)+'%';
+  let current='';
+  sections.forEach(s=>{if(scrollY>=s.offsetTop-180)current=s.id});
+  links.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+current));
+});
+document.querySelectorAll('.nav a').forEach(a=>a.addEventListener('click',e=>{
+  e.preventDefault();document.querySelector(a.getAttribute('href')).scrollIntoView({behavior:'smooth'});
+}));
+</script>
+</body>
+</html>
