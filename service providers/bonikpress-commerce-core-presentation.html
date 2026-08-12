@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BonikPress Commerce Core — Architecture Presentation</title>
+<style>
+:root {
+  --bp-green: #0B7A3B;
+  --bp-green-light: #16A052;
+  --bp-green-pale: #DFF6E8;
+  --bp-green-soft: #E8F7ED;
+  --bp-deep: #063C25;
+  --bp-deep-2: #073B25;
+  --bp-text: #13231B;
+  --bp-text-muted: #66766D;
+  --bp-text-light: #8B9891;
+  --bp-white: #FFFFFF;
+  --bp-background: #FBFEFC;
+  --bp-background-soft: #F6FAF7;
+  --bp-background-green: #F1F9F3;
+  --bp-border: #E2EBE5;
+  --bp-border-green: #C9E5D2;
+  --bp-shadow: 0 18px 55px rgba(7, 75, 40, 0.09);
+  --bp-shadow-hover: 0 25px 65px rgba(7, 75, 40, 0.13);
+  --bp-radius-sm: 10px;
+  --bp-radius-md: 16px;
+  --bp-radius-lg: 21px;
+  --bp-radius-xl: 24px;
+  --bp-radius-xxl: 28px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color:var(--bp-text);
+  background:var(--bp-background);
+  line-height:1.65;
+  overflow-x:hidden;
+}
+a{color:inherit;text-decoration:none}
+button{font:inherit}
+::selection{background:var(--bp-green-pale);color:var(--bp-deep)}
+.progress{position:fixed;top:0;left:0;height:4px;background:var(--bp-green-light);width:0;z-index:1000;box-shadow:0 0 18px rgba(22,160,82,.35)}
+.topbar{
+  position:fixed;top:4px;left:0;right:0;z-index:999;
+  height:62px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 28px;background:rgba(251,254,252,.82);backdrop-filter:blur(18px);
+  border-bottom:1px solid rgba(226,235,229,.8)
+}
+.brand{display:flex;align-items:center;gap:11px;font-weight:800;letter-spacing:-.02em}
+.brand-mark{
+  width:31px;height:31px;border-radius:10px;background:var(--bp-green);
+  display:grid;place-items:center;color:white;font-size:13px;box-shadow:0 7px 20px rgba(11,122,59,.22)
+}
+.nav{display:flex;gap:6px;align-items:center}
+.nav a{font-size:12px;color:var(--bp-text-muted);padding:8px 10px;border-radius:10px}
+.nav a:hover{background:var(--bp-green-soft);color:var(--bp-green)}
+.menu{display:none}
+.deck{padding-top:66px}
+.slide{
+  min-height:calc(100vh - 66px);padding:90px max(6vw,38px);
+  display:flex;align-items:center;position:relative;overflow:hidden;
+}
+.slide.alt{background:var(--bp-background-soft)}
+.slide.green{background:var(--bp-deep);color:white}
+.inner{width:min(1180px,100%);margin:auto;position:relative;z-index:2}
+.kicker{
+  display:inline-flex;align-items:center;gap:9px;color:var(--bp-green);font-weight:800;
+  text-transform:uppercase;letter-spacing:.13em;font-size:11px;margin-bottom:18px
+}
+.green .kicker{color:var(--bp-green-pale)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--bp-green-light);box-shadow:0 0 0 7px rgba(22,160,82,.10)}
+h1,h2,h3{line-height:1.08;letter-spacing:-.045em;margin:0}
+h1{font-size:clamp(46px,7vw,88px);max-width:980px}
+h2{font-size:clamp(34px,4.4vw,62px);max-width:920px}
+h3{font-size:22px}
+.lead{font-size:clamp(18px,2vw,24px);color:var(--bp-text-muted);max-width:820px;margin:25px 0 0}
+.green .lead{color:#D8E8DE}
+.eyebrow{font-size:14px;color:var(--bp-text-light);margin-top:22px}
+.hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:60px;align-items:center}
+.hero-visual{min-height:480px;position:relative;display:grid;place-items:center}
+.orbit{
+  width:360px;height:360px;border:1px solid var(--bp-border-green);border-radius:50%;position:relative;
+}
+}
+.orbit:before,.orbit:after{content:"";position:absolute;inset:35px;border:1px dashed var(--bp-border-green);border-radius:50%}
+.orbit:after{inset:85px}
+.core-node{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:145px;height:145px;border-radius:50%;background:var(--bp-green);color:white;
+  display:grid;place-items:center;text-align:center;font-weight:900;box-shadow:0 0 0 18px var(--bp-green-pale),0 20px 50px rgba(11,122,59,.22);
+  animation:pulse 3s ease-in-out infinite
+}
+.satellite{
+  position:absolute;width:118px;padding:12px 8px;text-align:center;border-radius:16px;background:white;
+  border:1px solid var(--bp-border);box-shadow:var(--bp-shadow);font-size:11px;font-weight:800;color:var(--bp-text)
+}
+.satellite{
+  --translate-x: 0;
+  --float-duration: 2.27s;
+  --float-delay: 0s;
+  animation: bp-float var(--float-duration) ease-in-out infinite;
+  animation-delay: var(--float-delay);
+  will-change: transform;
+  transition: transform .28s ease, box-shadow .28s ease;
+}
+
+.s1{ --translate-x: -50%; --float-duration:2.20s; --float-delay:0s }
+.s2{ --translate-x: 0;     --float-duration:2.33s; --float-delay:0.12s }
+.s3{ --translate-x: 0;     --float-duration:2.07s; --float-delay:0.24s }
+.s4{ --translate-x: 0;     --float-duration:2.47s; --float-delay:0.34s }
+.s5{ --translate-x: 0;     --float-duration:2.27s; --float-delay:0.5s }
+
+@keyframes bp-float{
+  0%,100%{ transform: translateX(var(--translate-x)) translateY(0); }
+  50%{    transform: translateX(var(--translate-x)) translateY(-8px); }
+}
+
+.satellite:hover{
+  animation-play-state:paused;
+  transform: translateX(var(--translate-x)) translateY(-10px) scale(1.02);
+  box-shadow: var(--bp-shadow-hover);
+}
+
+@media (prefers-reduced-motion: reduce){
+  .satellite{ animation:none !important; transition:none !important; }
+  .core-node{ animation:none !important; }
+}
+.s1{top:-16px;left:50%;transform:translateX(-50%)}
+.s2{right:-40px;top:30%}.s3{right:12px;bottom:4%}.s4{left:12px;bottom:4%}.s5{left:-40px;top:30%}
+.stat-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:34px}
+.stat{padding:13px 16px;background:var(--bp-green-soft);border:1px solid var(--bp-border-green);border-radius:14px}
+.stat strong{display:block;font-size:22px;color:var(--bp-green)}.stat span{font-size:11px;color:var(--bp-text-muted)}
+.section-head{display:flex;justify-content:space-between;gap:30px;align-items:end;margin-bottom:44px}
+.section-head p{max-width:460px;color:var(--bp-text-muted);margin:0}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:17px}
+.card{
+  background:var(--bp-white);border:1px solid var(--bp-border);border-radius:var(--bp-radius-lg);
+  padding:25px;box-shadow:var(--bp-shadow);transition:.35s ease;position:relative;overflow:hidden
+}
+.card:hover{transform:translateY(-6px);box-shadow:var(--bp-shadow-hover);border-color:var(--bp-border-green)}
+.card:after{content:"";position:absolute;right:-45px;top:-45px;width:100px;height:100px;border-radius:50%;background:var(--bp-green-pale);opacity:.45}
+.num{font-size:12px;font-weight:900;color:var(--bp-green);letter-spacing:.12em;margin-bottom:15px}
+.card p{color:var(--bp-text-muted);font-size:14px;margin:10px 0 0}
+.pill{display:inline-block;background:var(--bp-green-pale);color:var(--bp-green);border-radius:999px;padding:5px 10px;font-size:10px;font-weight:800;margin:4px 4px 0 0}
+.timeline{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:40px}
+.phase{padding:20px 14px;border:1px solid var(--bp-border);background:white;border-radius:18px;min-height:125px}
+.phase b{display:block;color:var(--bp-green);font-size:12px;margin-bottom:10px}.phase span{font-size:12px;color:var(--bp-text-muted)}
+.phase-wide{grid-column:span 2}
+.flow{display:flex;align-items:stretch;gap:8px;flex-wrap:wrap;margin-top:38px}
+.flow .box{flex:1;min-width:135px;background:white;border:1px solid var(--bp-border);border-radius:17px;padding:18px;text-align:center;box-shadow:var(--bp-shadow)}
+.arrow{display:grid;place-items:center;color:var(--bp-green-light);font-size:23px}
+.map{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:38px}
+.role{
+  border:1px solid var(--bp-border);border-radius:var(--bp-radius-xl);background:white;padding:25px;
+  display:grid;grid-template-columns:52px 1fr;gap:18px;box-shadow:var(--bp-shadow);transition:.3s
+}
+.role:hover{transform:translateY(-4px);box-shadow:var(--bp-shadow-hover)}
+.role-icon{width:52px;height:52px;border-radius:16px;background:var(--bp-green-pale);display:grid;place-items:center;color:var(--bp-green);font-weight:900}
+.role p{margin:8px 0 0;color:var(--bp-text-muted);font-size:13px}
+.subs{margin-top:14px;padding-top:13px;border-top:1px solid var(--bp-border);display:flex;gap:6px;flex-wrap:wrap}
+.subs span{font-size:10px;padding:5px 8px;border-radius:8px;background:var(--bp-background-soft);color:var(--bp-text-muted);border:1px solid var(--bp-border)}
+.dark-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:42px}
+.dark-card{background:rgba(255,255,255,.055);border:1px solid rgba(201,229,210,.16);border-radius:21px;padding:25px}
+.dark-card p{color:#BFD2C6;font-size:13px}.dark-card b{color:white}
+.code{
+  background:var(--bp-deep);color:#E8F7ED;border-radius:22px;padding:25px;
+  font-family:"SFMono-Regular",Consolas,monospace;font-size:13px;line-height:1.85;
+  border:1px solid rgba(201,229,210,.15);box-shadow:0 25px 70px rgba(6,60,37,.15);overflow:auto
+}
+.code .g{color:#16A052}.code .m{color:#8B9891}.code .w{color:#FFFFFF}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:25px;align-items:center}
+.callout{padding:25px;border-left:4px solid var(--bp-green);background:var(--bp-green-soft);border-radius:0 18px 18px 0;margin-top:25px}
+.callout strong{display:block;margin-bottom:7px}.callout p{margin:0;color:var(--bp-text-muted);font-size:14px}
+.relationship{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:35px}
+.rel{padding:22px;background:white;border:1px solid var(--bp-border);border-radius:18px}
+.rel strong{color:var(--bp-green)}.rel p{font-size:13px;color:var(--bp-text-muted)}
+.big-quote{font-size:clamp(28px,4vw,52px);font-weight:800;line-height:1.18;max-width:960px}
+.footer{padding:80px 6vw;background:var(--bp-deep);color:white;text-align:center}
+.footer p{color:#BFD2C6;max-width:700px;margin:18px auto}
+.reveal{opacity:0;transform:translateY(25px);transition:opacity .8s ease,transform .8s ease}.reveal.visible{opacity:1;transform:none}
+.slide-number{position:absolute;right:35px;bottom:30px;font-size:11px;color:var(--bp-text-light);letter-spacing:.1em}
+.green .slide-number{color:#8BAA99}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 18px var(--bp-green-pale),0 20px 50px rgba(11,122,59,.22)}50%{box-shadow:0 0 0 30px rgba(223,246,232,.6),0 25px 65px rgba(11,122,59,.25)}}
+@media(max-width:900px){
+ .nav{display:none}.menu{display:block;border:0;background:var(--bp-green-pale);color:var(--bp-green);padding:8px 11px;border-radius:10px}
+ .hero-grid,.two{grid-template-columns:1fr}.hero-visual{min-height:390px}.orbit{width:290px;height:290px}
+ .grid,.dark-grid{grid-template-columns:1fr 1fr}.map{grid-template-columns:1fr}.timeline{grid-template-columns:1fr 1fr}
+ .phase-wide{grid-column:auto}.slide{padding:75px 25px}.section-head{display:block}.section-head p{margin-top:16px}
+}
+@media(max-width:580px){
+ h1{font-size:43px}.grid,.dark-grid,.relationship{grid-template-columns:1fr}.timeline{grid-template-columns:1fr}
+ .orbit{width:250px;height:250px}.satellite{width:90px;font-size:9px}.s2{right:-15px}.s5{left:-15px}
+ .s3{right:0}.s4{left:0}.slide{min-height:auto;padding:90px 20px}.slide-number{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+ *,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<header class="topbar">
+  <a class="brand" href="#cover"><span class="brand-mark">BP</span><span>BonikPress Commerce Core</span></a>
+  <nav class="nav">
+    <a href="#architecture">Architecture</a><a href="#lifecycle">Lifecycle</a><a href="#registry">Registry</a>
+    <a href="#dependency">Dependencies</a><a href="#providers">Providers</a><a href="#config">Configuration</a>
+    <a href="#runtime">Runtime</a><a href="#extensions">Extensions</a><a href="#more">More</a>
+  </nav>
+  <button class="menu" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑ Top</button>
+</header>
+
+<main class="deck">
+
+<section class="slide" id="cover">
+ <div class="inner hero-grid">
+  <div class="reveal">
+   <div class="kicker"><span class="dot"></span> BonikPress Commerce Architecture</div>
+   <h1>The kernel that makes one Commerce ecosystem possible.</h1>
+   <p class="lead">A responsibility-driven architecture for discovering, registering, validating, coordinating, extending, and safely operating independent BonikPress Commerce products.</p>
+   <div class="stat-row">
+    <div class="stat"><strong>7</strong><span>Core responsibilities</span></div>
+    <div class="stat"><strong>5</strong><span>Mandatory providers</span></div>
+    <div class="stat"><strong>∞</strong><span>Components & extensions</span></div>
+   </div>
+   <p class="eyebrow">Architecture presentation · Commerce ecosystem only</p>
+  </div>
+  <div class="hero-visual reveal">
+   <div class="orbit">
+    <div class="core-node">COMMERCE<br>CORE</div>
+    <div class="satellite s1">Lifecycle</div><div class="satellite s2">Registry</div>
+    <div class="satellite s3">Runtime</div><div class="satellite s4">Extensions</div><div class="satellite s5">Providers</div>
+   </div>
+  </div>
+ </div>
+ <span class="slide-number">01 / 20</span>
+</section>
+
+<section class="slide alt" id="architecture">
+ <div class="inner">
+  <div class="section-head reveal">
+   <div><div class="kicker"><span class="dot"></span> Platform Context</div><h2>One Commerce ecosystem. Many independent products.</h2></div>
+   <p>BonikPress is a platform architecture rather than a monolithic plugin. Independent packages can remain independently maintainable while Core makes them behave as one ecosystem.</p>
+  </div>
+  <div class="grid reveal">
+   <div class="card"><div class="num">01 · BUNDLES</div><h3>Complete solution areas</h3><p>Bundles group substantial Large Plugins around a complete commerce business area. Bundles contain Large Plugins only.</p><span class="pill">Structural relationship</span></div>
+   <div class="card"><div class="num">02 · LARGE PLUGINS</div><h3>Standalone systems</h3><p>Deep, independently valuable systems solving significant business requirements.</p><span class="pill">Independent product</span></div>
+   <div class="card"><div class="num">03 · SMALL PLUGINS</div><h3>Focused capabilities</h3><p>Lightweight products addressing one focused merchant problem while remaining independently useful.</p><span class="pill">Focused need</span></div>
+   <div class="card"><div class="num">04 · ADD-ONS</div><h3>Horizontal extension</h3><p>Add-ons are independent products. They can extend compatible Bundles, Large Plugins, or Small Plugins.</p><span class="pill">Cross-product</span></div>
+   <div class="card"><div class="num">05 · CORE</div><h3>The platform kernel</h3><p>Core governs the ecosystem underneath all of these product forms. It is not merely infrastructure for the other four providers.</p><span class="pill">Commerce-wide</span></div>
+   <div class="card"><div class="num">06 · SEPARATION</div><h3>Payments comes later</h3><p>The five-provider architecture belongs to Commerce. The future Payments ecosystem will be designed independently rather than sharing this provider foundation.</p><span class="pill">Architectural boundary</span></div>
+  </div>
+ </div><span class="slide-number">02 / 20</span>
+</section>
+
+<section class="slide">
+ <div class="inner">
+  <div class="kicker reveal"><span class="dot"></span> The Core Model</div>
+  <h2 class="reveal">Separate the software from the experience.</h2>
+  <p class="lead reveal">Many WordPress packages can exist underneath while BonikPress presents merchants with a unified Commerce experience. Core supplies the infrastructure that lets those independent packages participate safely.</p>
+  <div class="two reveal" style="margin-top:45px">
+   <div class="code"><span class="g">wp-content/plugins/</span><br><br>
+    <span class="w">bonikpress-core/</span><br>
+    <span class="w">bulk-product-edit/</span><br>
+    <span class="w">bulk-price-manager/</span><br>
+    <span class="w">bulk-stock-manager/</span><br>
+    <span class="w">bulk-sku-manager/</span><br>
+    <span class="m">...</span>
+   </div>
+   <div>
+    <div class="callout"><strong>Technical reality</strong><p>Each package remains independently maintainable, versionable, installable, and replaceable.</p></div>
+    <div class="callout"><strong>Customer-facing experience</strong><p>BonikPress can compose those capabilities into coherent products, sections, workflows, and navigation without mirroring the plugin folder structure.</p></div>
+   </div>
+  </div>
+ </div><span class="slide-number">03 / 20</span>
+</section>
+
+<section class="slide green">
+ <div class="inner">
+  <div class="kicker reveal"><span class="dot"></span> Core in one sentence</div>
+  <div class="big-quote reveal">“Ensure that the Commerce ecosystem can discover, understand, validate, resolve, initialize, coordinate, and safely operate all of its participating components.”</div>
+  <div class="dark-grid reveal">
+   <div class="dark-card"><b>Not business logic</b><p>Core does not become the implementation of pricing, inventory, orders, reports, shipping, or other commerce domains.</p></div>
+   <div class="dark-card"><b>Not only provider infrastructure</b><p>Core governs Bundles, Large Plugins, Small Plugins, Add-ons, and the five mandatory infrastructure providers.</p></div>
+   <div class="dark-card"><b>Not a sequential pipeline</b><p>The seven responsibilities are dimensions of one kernel. They continuously cooperate and exchange state, relationships, and resolution results.</p></div>
+  </div>
+ </div><span class="slide-number">04 / 20</span>
+</section>
+
+<section class="slide alt">
+ <div class="inner">
+  <div class="section-head reveal">
+   <div><div class="kicker"><span class="dot"></span> Responsibility Map</div><h2>Seven dimensions of the Commerce kernel.</h2></div>
+   <p>Each responsibility owns a distinct concern. No responsibility needs to become a “god subsystem”; together they form the operating model of Commerce.</p>
+  </div>
+  <div class="map reveal">
+   <div class="role"><div class="role-icon">01</div><div><h3>Ecosystem Lifecycle</h3><p>Governs how Commerce moves from bootstrap to operational readiness and controlled shutdown.</p><div class="subs"><span>Bootstrap</span><span>Environment Check</span><span>Discovery</span><span>Registration</span><span>Validation</span><span>Resolution</span><span>Loading</span><span>Initialization</span><span>Ready</span><span>Runtime</span><span>Shutdown</span></div></div></div>
+   <div class="role"><div class="role-icon">02</div><div><h3>Component Registry</h3><p>Maintains the ecosystem's central knowledge of what components exist and what they declare.</p><div class="subs"><span>Identity</span><span>Type</span><span>Metadata</span><span>Version</span><span>Relationships</span><span>Status</span><span>Lookup</span></div></div></div>
+   <div class="role"><div class="role-icon">03</div><div><h3>Dependency & Compatibility</h3><p>Determines whether requirements can be satisfied and whether ecosystem elements can safely coexist.</p><div class="subs"><span>Dependencies</span><span>Resolution</span><span>Versioning</span><span>Platform Requirements</span><span>Compatibility</span><span>Conflicts</span><span>Validation</span></div></div></div>
+   <div class="role"><div class="role-icon">04</div><div><h3>Provider Management</h3><p>Manages the five mandatory infrastructure providers from discovery through readiness and provider failure.</p><div class="subs"><span>Discovery</span><span>Registration</span><span>Loading</span><span>Initialization</span><span>Readiness</span><span>Failure</span></div></div></div>
+   <div class="role"><div class="role-icon">05</div><div><h3>Configuration</h3><p>Defines and persists configuration across the ecosystem, providers, and components.</p><div class="subs"><span>Ecosystem</span><span>Provider</span><span>Component</span><span>Registration</span><span>Validation</span><span>Defaults</span><span>Environment</span><span>Persistence</span></div></div></div>
+   <div class="role"><div class="role-icon">06</div><div><h3>Runtime & Coordination</h3><p>Maintains awareness of the living ecosystem and coordinates availability, failure, recovery, and diagnostics.</p><div class="subs"><span>Runtime State</span><span>Readiness</span><span>Availability</span><span>Coordination</span><span>Failure Handling</span><span>Recovery</span><span>Diagnostics</span></div></div></div>
+   <div class="role"><div class="role-icon">07</div><div><h3>Capabilities & Extension System</h3><p>Defines what components provide, how capabilities are resolved, and how products can be extended safely.</p><div class="subs"><span>Capabilities</span><span>Capability Resolution</span><span>Extension Registration</span><span>Extension Points</span><span>Contracts</span><span>Hooks</span><span>APIs</span></div></div></div>
+  </div>
+ </div><span class="slide-number">05 / 20</span>
+</section>
+
+<section class="slide" id="lifecycle">
+ <div class="inner">
+  <div class="section-head reveal"><div><div class="kicker"><span class="dot"></span> 01 · Ecosystem Lifecycle</div><h2>Govern the life of Commerce.</h2></div><p>Lifecycle is about controlled transitions: how the ecosystem starts, discovers itself, resolves relationships, becomes operational, and eventually shuts down.</p></div>
+  <div class="timeline reveal">
+   <div class="phase"><b>01 · Bootstrap</b><span>Start the Core execution context.</span></div>
+   <div class="phase"><b>02 · Environment</b><span>Verify WordPress, PHP, WooCommerce, and platform prerequisites.</span></div>
+   <div class="phase"><b>03 · Discovery</b><span>Find participating components and providers.</span></div>
+   <div class="phase"><b>04 · Registration</b><span>Turn discovered entities into known ecosystem components.</span></div>
+   <div class="phase"><b>05 · Validation</b><span>Check declarations and structural correctness.</span></div>
+   <div class="phase"><b>06 · Resolution</b><span>Resolve dependencies, compatibility, capabilities, and conflicts.</span></div>
+   <div class="phase"><b>07 · Loading</b><span>Make resolved components available to the Commerce runtime.</span></div>
+   <div class="phase"><b>08 · Initialization</b><span>Allow participating components to prepare themselves.</span></div>
+   <div class="phase"><b>09 · Ready</b><span>Mark the ecosystem or component as ready for operation.</span></div>
+   <div class="phase phase-wide"><b>10 · Runtime</b><span>Hand ongoing operational concerns to Runtime & Coordination while remaining part of the ecosystem lifecycle.</span></div>
+   <div class="phase phase-wide"><b>11 · Shutdown</b><span>Provide a controlled termination point for the Commerce runtime.</span></div>
+  </div>
+  <div class="callout reveal"><strong>Important distinction</strong><p>Loading is retained as an ecosystem concept, but Core does not need to invent a replacement for WordPress's native plugin-loading mechanism. Initialization remains an explicit Commerce lifecycle concept.</p></div>
+ </div><span class="slide-number">06 / 20</span>
+</section>
+
+<section class="slide alt" id="registry">
+ <div class="inner">
+  <div class="section-head reveal"><div><div class="kicker"><span class="dot"></span> 02 · Component Registry</div><h2>Know what exists.</h2></div><p>The Registry is the central identity and knowledge layer. It records components and their declarations without necessarily being responsible for interpreting every relationship.</p></div>
+  <div class="two reveal">
+   <div class="code"><span class="g">REGISTERING COMPONENT</span><br><br>
+    <span class="w">Required</span><br>
+    ├── ID<br>├── Type<br>└── Version<br><br>
+    <span class="w">Optional Metadata</span><br>
+    ├── Name<br>├── Description<br>└── Vendor<br><br>
+    <span class="w">Ecosystem Declarations</span><br>
+    ├── Dependencies<br>├── Compatibility<br>├── Capabilities<br>└── Relationships
+   </div>
+   <div class="grid" style="grid-template-columns:1fr 1fr">
+    <div class="card"><div class="num">IDENTITY</div><h3>Who?</h3><p>Unique component identification.</p></div>
+    <div class="card"><div class="num">TYPE</div><h3>What?</h3><p>Provider, Bundle, Large Plugin, Small Plugin, Add-on, or other defined component type.</p></div>
+    <div class="card"><div class="num">STATUS</div><h3>Where?</h3><p>Tracks the component's current ecosystem state.</p></div>
+    <div class="card"><div class="num">LOOKUP</div><h3>Find it.</h3><p>Retrieve components, providers, relationships, and relevant declarations.</p></div>
+   </div>
+  </div>
+ </div><span class="slide-number">07 / 20</span>
+</section>
+
+<section class="slide" id="dependency">
+ <div class="inner">
+  <div class="section-head reveal"><div><div class="kicker"><span class="dot"></span> 03 · Dependency & Compatibility</div><h2>Know whether things can work together.</h2></div><p>BonikPress treats dependencies broadly enough to express component, provider, capability, and platform requirements while retaining compatibility and conflict rules.</p></div>
+  <div class="grid reveal">
+   <div class="card"><div class="num">COMPONENT → COMPONENT</div><h3>First-class dependency</h3><p>Component A can explicitly require Component B to function correctly.</p><span class="pill">requires</span></div>
+   <div class="card"><div class="num">COMPONENT → PROVIDER</div><h3>Specific infrastructure</h3><p>A component may require a particular provider when the identity of that provider matters.</p><span class="pill">specific</span></div>
+   <div class="card"><div class="num">COMPONENT → CAPABILITY</div><h3>Functionality dependency</h3><p>A component may require a capability without caring which eligible component provides it.</p><span class="pill">capability-based</span></div>
+   <div class="card"><div class="num">PLATFORM</div><h3>Environment dependency</h3><p>PHP, WordPress, WooCommerce, and required platform functionality can be modeled as dependencies.</p></div>
+   <div class="card"><div class="num">OPTIONAL</div><h3>Enhancement dependency</h3><p>A component can operate without another component but gain functionality when that component exists.</p><span class="pill">optional</span></div>
+   <div class="card"><div class="num">CONFLICT</div><h3>Negative dependency</h3><p>Explicitly declare combinations that must not coexist.</p><span class="pill">conflicts</span></div>
+  </div>
+  <div class="flow reveal">
+   <div class="box"><b>Declaration</b><br><small>What is required?</small></div><div class="arrow">→</div>
+   <div class="box"><b>Validation</b><br><small>Is it valid?</small></div><div class="arrow">→</div>
+   <div class="box"><b>Resolution</b><br><small>Can it be satisfied?</small></div><div class="arrow">→</div>
+   <div class="box"><b>Participation</b><br><small>May it operate?</small></div>
+  </div>
+ </div><span class="slide-number">08 / 20</span>
+</section>
+
+<section class="slide alt" id="providers">
+ <div class="inner">
+  <div class="section-head reveal"><div><div class="kicker"><span class="dot"></span> 04 · Provider Management</div><h2>Five providers. One mandatory foundation.</h2></div><p>Provider Management governs the infrastructure providers themselves. All five are mandatory Commerce infrastructure, even when an individual installation does not actively use every capability they expose.</p></div>
+  <div class="grid reveal">
+   <div class="card"><div class="num">01</div><h3>Core Manager</h3><p>The kernel that governs lifecycle, registry, relationships, runtime coordination, configuration, and extension infrastructure.</p></div>
+   <div class="card"><div class="num">02</div><h3>Data Manager</h3><p>One gateway to platform data: retrieval, CRUD, queries, filtering, pagination, metadata, custom tables, caching, and normalization.</p></div>
+   <div class="card"><div class="num">03</div><h3>Request Manager</h3><p>One request lifecycle for AJAX and REST, parsing, sanitization, security checks, validation, and standardized responses.</p></div>
+   <div class="card"><div class="num">04</div><h3>UI Manager</h3><p>One reusable admin experience for tables, filters, search, pagination, forms, modals, notices, and components.</p></div>
+   <div class="card"><div class="num">05</div><h3>Task & Event Manager</h3><p>Work later and react cleanly through queues, background jobs, scheduling, retries, and ecosystem events.</p></div>
+   <div class="card"><div class="num">Provider lifecycle</div><h3>Manage the provider</h3><p>Discovery → Registration → Loading → Initialization → Readiness → Failure.</p></div>
+  </div>
+ </div><span class="slide-number">09 / 20</span>
+</section>
+
+<section class="slide green">
+ <div class="inner">
+  <div class="kicker reveal"><span class="dot"></span> Provider Boundary</div>
+  <h2 class="reveal">Core coordinates providers. It does not become them.</h2>
+  <div class="dark-grid reveal">
+   <div class="dark-card"><b>Data Manager</b><p>Owns existing platform/application data and the unified data access layer.</p></div>
+   <div class="dark-card"><b>Request Manager</b><p>Owns request processing, security, validation, and standardized request/response flow.</p></div>
+   <div class="dark-card"><b>UI Manager</b><p>Owns reusable administrative presentation and interaction primitives.</p></div>
+   <div class="dark-card"><b>Task & Event Manager</b><p>Owns queues, background work, scheduling, retries, and event-oriented processing.</p></div>
+   <div class="dark-card"><b>Core</b><p>Knows provider state, dependencies, availability, and participation. It coordinates rather than absorbing their business.</p></div>
+   <div class="dark-card"><b>Future Payments</b><p>Does not use this five-provider Commerce foundation. Payments will have its own future architecture.</p></div>
+  </div>
+ </div><span class="slide-number">10 / 20</span>
+</section>
+
+<section class="slide" id="config">
+ <div class="inner">
+  <div class="section-head reveal"><div><div class="kicker"><span class="dot"></span> 05 · Configuration</div><h2>One configuration model across the ecosystem.</h2></div><p>Configuration is a first-class Core responsibility. It can exist at ecosystem, provider, and component levels and must be definable, validated, defaulted, environment-aware, and persistent.</p></div>
+  <div class="flow reveal">
+   <div class="box"><b>Ecosystem</b><br><small>Global Commerce configuration</small></div><div class="arrow">→</div>
+   <div class="box"><b>Provider</b><br><small>Provider-specific settings</small></div><div class="arrow">→</div>
+   <div class="box"><b>Component</b><br><small>Product/component settings</small></div>
+  </div>
+  <div class="grid reveal" style="margin-top:22px">
+   <div class="card"><div class="num">REGISTRATION</div><h3>Define configuration</h3><p>Components and providers declare the configuration they own and its expected structure.</p></div>
+   <div class="card"><div class="num">VALIDATION</div><h3>Protect configuration</h3><p>Values are checked against their defined requirements before being accepted.</p></div>
+   <div class="card"><div class="num">DEFAULTS</div><h3>Provide sensible starting state</h3><p>Missing values can resolve to controlled defaults.</p></div>
+   <div class="card"><div class="num">ENVIRONMENT</div><h3>Adapt to runtime context</h3><p>Configuration can account for the environment in which Commerce is running.</p></div>
+   <div class="card"><div class="num">PERSISTENCE</div><h3>Survive requests</h3><p>Configuration must remain available beyond the current request/runtime.</p></div>
+   <div class="card"><div class="num">BOUNDARY</div><h3>Not Data Manager</h3><p>Core owns configuration persistence; Data Manager handles existing platform/application data.</p></div>
+  </div>
+ </div><span class="slide-number">11 / 20</span>
+</section>
+
+<section class="slide alt" id="runtime">
+ <div class="inner">
+  <div class="section-head reveal"><div><div class="kicker"><span class="dot"></span> 06 · Runtime & Coordination</div><h2>Know what is happening now.</h2></div><p>Lifecycle describes where the ecosystem is in its controlled startup/shutdown journey. Runtime describes the ecosystem's current operational condition.</p></div>
+  <div class="two reveal">
+   <div class="card" style="padding:35px"><div class="num">TWO DIMENSIONS</div><h3>Lifecycle State</h3><p>“Where are we?”</p><div class="callout"><strong>READY</strong><p>The ecosystem has completed its lifecycle path to operational readiness.</p></div></div>
+   <div class="card" style="padding:35px"><div class="num">TWO DIMENSIONS</div><h3>Runtime State</h3><p>“What condition are we in?”</p><div class="callout"><strong>DEGRADED</strong><p>A component may be unavailable while the wider ecosystem continues operating.</p></div></div>
+  </div>
+  <div class="grid reveal" style="margin-top:18px">
+   <div class="card"><div class="num">RUNTIME STATE</div><h3>Current condition</h3><p>Tracks the operational state of Commerce and its participants.</p></div>
+   <div class="card"><div class="num">READINESS</div><h3>Ecosystem readiness</h3><p>Determines whether Commerce as a whole can operate, distinct from individual provider readiness.</p></div>
+   <div class="card"><div class="num">AVAILABILITY</div><h3>Can it participate now?</h3><p>Tracks current availability of providers, components, or capabilities.</p></div>
+   <div class="card"><div class="num">COORDINATION</div><h3>Keep the system coherent</h3><p>Coordinates ecosystem-level state and relationships without replacing specialized providers.</p></div>
+   <div class="card"><div class="num">FAILURE HANDLING</div><h3>Contain impact</h3><p>Detect failure, assess impact, propagate state appropriately, and isolate unrelated functionality.</p></div>
+   <div class="card"><div class="num">RECOVERY + DIAGNOSTICS</div><h3>Return and understand</h3><p>Coordinate restoration when possible and expose enough state to understand what happened and why.</p></div>
+  </div>
+ </div><span class="slide-number">12 / 20</span>
+</section>
+
+<section class="slide">
+ <div class="inner">
+  <div class="kicker reveal"><span class="dot"></span> Failure Model</div>
+  <h2 class="reveal">A broken component should not automatically become a broken ecosystem.</h2>
+  <p class="lead reveal">Dependency-aware runtime coordination lets Core understand the blast radius of failures instead of treating every failure as global.</p>
+  <div class="flow reveal">
+   <div class="box"><b>Data Manager</b><br><small>FAILED</small></div><div class="arrow">→</div>
+   <div class="box"><b>Dependency Graph</b><br><small>Find affected components</small></div><div class="arrow">→</div>
+   <div class="box"><b>Isolation</b><br><small>Limit propagation</small></div><div class="arrow">→</div>
+   <div class="box"><b>Runtime</b><br><small>Remain operational where possible</small></div>
+  </div>
+  <div class="callout reveal"><strong>Architectural principle</strong><p>Failure propagation should follow actual relationships. Components with no dependency on the failed functionality should not be taken down unnecessarily.</p></div>
+ </div><span class="slide-number">13 / 20</span>
+</section>
+
+<section class="slide green" id="extensions">
+ <div class="inner">
+  <div class="kicker reveal"><span class="dot"></span> 07 · Capabilities & Extension System</div>
+  <h2 class="reveal">Know what components provide. Know how products can be extended.</h2>
+  <p class="lead reveal">This is the horizontal integration layer that makes independent Commerce products and Add-ons composable without requiring every integration to become a hard-coded dependency.</p>
+  <div class="dark-grid reveal">
+   <div class="dark-card"><b>Capabilities</b><p>Declare and consume functionality provided by ecosystem components.</p></div>
+   <div class="dark-card"><b>Capability Resolution</b><p>Find eligible providers and select among them using policy, priority, preference, and fallback.</p></div>
+   <div class="dark-card"><b>Extension Registration</b><p>Register an Add-on or component against a specific target and extension point.</p></div>
+   <div class="dark-card"><b>Extension Points</b><p>Explicit surfaces where products permit other components to participate.</p></div>
+   <div class="dark-card"><b>Contracts</b><p>Define the stable rules, inputs, outputs, and expectations an extension must satisfy.</p></div>
+   <div class="dark-card"><b>Hooks & APIs</b><p>Provide practical integration mechanisms without replacing WordPress or the specialized provider systems.</p></div>
+  </div>
+ </div><span class="slide-number">14 / 20</span>
+</section>
+
+<section class="slide" >
+ <div class="inner">
+  <div class="section-head reveal"><div><div class="kicker"><span class="dot"></span> Capability Model</div><h2>Capability is functionality, not identity.</h2></div><p>A component is an identifiable entity. A capability is something that entity can provide. This distinction enables capability-based dependencies and flexible provider substitution.</p></div>
+  <div class="two reveal">
+   <div class="code"><span class="g">COMPONENT</span><br>
+    Data Manager<br><br>
+    <span class="g">PROVIDES</span><br>
+    ├── product.query<br>
+    ├── product.retrieve<br>
+    └── product.update<br><br>
+    <span class="g">CONSUMER</span><br>
+    Advanced Reports<br><br>
+    <span class="g">REQUIRES</span><br>
+    product.query
+   </div>
+   <div>
+    <div class="callout"><strong>Direct dependency</strong><p>“I require this specific component/provider.”</p></div>
+    <div class="callout"><strong>Capability dependency</strong><p>“I require this functionality. I primarily do not care who provides it.”</p></div>
+    <div class="callout"><strong>Specific-provider dependency</strong><p>When identity matters, the dependency can still explicitly require a particular provider.</p></div>
+   </div>
+  </div>
+ </div><span class="slide-number">15 / 20</span>
+</section>
+
+<section class="slide alt">
+ <div class="inner">
+  <div class="section-head reveal"><div><div class="kicker"><span class="dot"></span> Capability Resolution</div><h2>Multiple providers require deterministic selection.</h2></div><p>We intentionally support richer resolution rather than assuming one capability always has one provider.</p></div>
+  <div class="flow reveal">
+   <div class="box"><b>Provider Lookup</b><br><small>Find declarations</small></div><div class="arrow">→</div>
+   <div class="box"><b>Matching</b><br><small>Same capability + contract</small></div><div class="arrow">→</div>
+   <div class="box"><b>Eligibility</b><br><small>Ready, compatible, satisfied</small></div><div class="arrow">→</div>
+   <div class="box"><b>Policy</b><br><small>Preference + priority</small></div><div class="arrow">→</div>
+   <div class="box"><b>Resolution</b><br><small>Select + fallback</small></div>
+  </div>
+  <div class="grid reveal" style="margin-top:22px">
+   <div class="card"><div class="num">PRIORITY</div><h3>Provider preference</h3><p>Providers can express a relative selection priority after eligibility is established.</p></div>
+   <div class="card"><div class="num">PREFERENCE</div><h3>Consumer preference</h3><p>A consuming component can prefer a particular eligible provider.</p></div>
+   <div class="card"><div class="num">FALLBACK</div><h3>Resilience</h3><p>When the preferred provider becomes unavailable, an eligible substitute can take over when the contract permits substitution.</p></div>
+  </div>
+ </div><span class="slide-number">16 / 20</span>
+</section>
+
+<section class="slide">
+ <div class="inner">
+  <div class="section-head reveal"><div><div class="kicker"><span class="dot"></span> Extension Model</div><h2>Products expose surfaces. Add-ons plug into explicit contracts.</h2></div><p>Extensions should be deliberate relationships, not accidental coupling. A product declares where it can be extended; an Add-on registers against that surface and follows its contract.</p></div>
+  <div class="relationship reveal">
+   <div class="rel"><strong>1 · Target</strong><p>The product or component being extended.</p></div>
+   <div class="rel"><strong>2 · Extension Point</strong><p>The named surface where extension is permitted.</p></div>
+   <div class="rel"><strong>3 · Contract</strong><p>The rules the extension implementation must satisfy.</p></div>
+   <div class="rel"><strong>4 · Registration</strong><p>The extension becomes known to the ecosystem and can be resolved for participation.</p></div>
+  </div>
+  <div class="code reveal" style="margin-top:25px">
+   <span class="g">Bulk Product Edit</span><br>
+   └── exposes → <span class="w">pricing.workflow</span><br><br>
+   <span class="g">Bulk Price Manager</span><br>
+   └── extends → <span class="w">pricing.workflow</span><br><br>
+   <span class="m">Contract:</span> receives pricing context → returns pricing result
+  </div>
+ </div><span class="slide-number">17 / 20</span>
+</section>
+
+<section class="slide alt" id="more">
+ <div class="inner">
+  <div class="section-head reveal"><div><div class="kicker"><span class="dot"></span> Relationship Architecture</div><h2>Relationships are fundamental — but not a separate eighth subsystem.</h2></div><p>The Registry records relationships. The subsystem that owns the semantics of that relationship validates, resolves, or executes it.</p></div>
+  <div class="relationship reveal">
+   <div class="rel"><strong>Structural</strong><p>Bundle contains Large Plugin. This expresses product composition, not runtime dependency.</p></div>
+   <div class="rel"><strong>Dependency</strong><p>A component requires, optionally uses, recommends, or conflicts with another component.</p></div>
+   <div class="rel"><strong>Compatibility</strong><p>A product or Add-on explicitly supports or rejects another product/version combination.</p></div>
+   <div class="rel"><strong>Capability</strong><p>A component provides functionality or requires functionality from an eligible provider.</p></div>
+   <div class="rel"><strong>Extension</strong><p>An Add-on or component extends an explicit surface exposed by another product.</p></div>
+   <div class="rel"><strong>Resolution principle</strong><p>There is no universal relationship resolver; dependency, capability, compatibility, and extension systems resolve their own relationship types.</p></div>
+  </div>
+ </div><span class="slide-number">18 / 20</span>
+</section>
+
+<section class="slide green">
+ <div class="inner">
+  <div class="kicker reveal"><span class="dot"></span> The Operating Model</div>
+  <h2 class="reveal">Seven responsibilities. One continuously cooperating kernel.</h2>
+  <div class="flow reveal" style="margin-top:48px">
+    <div class="box"
+         style="background:var(--bp-white); color:var(--bp-text) !important; border:1px solid var(--bp-border);">
+        <b style="color:var(--bp-text) !important;">Registry</b><br>
+        <small style="color:var(--bp-text-muted) !important;">What exists?</small>
+    </div>
+
+    <div class="arrow" style="color:var(--bp-green) !important;">→</div>
+
+    <div class="box"
+         style="background:var(--bp-white); color:var(--bp-text) !important; border:1px solid var(--bp-border);">
+        <b style="color:var(--bp-text) !important;">Dependencies</b><br>
+        <small style="color:var(--bp-text-muted) !important;">Can it work?</small>
+    </div>
+
+    <div class="arrow" style="color:var(--bp-green) !important;">→</div>
+
+    <div class="box"
+         style="background:var(--bp-white); color:var(--bp-text) !important; border:1px solid var(--bp-border);">
+        <b style="color:var(--bp-text) !important;">Providers</b><br>
+        <small style="color:var(--bp-text-muted) !important;">Is infrastructure ready?</small>
+    </div>
+</div>
+
+<div class="flow reveal">
+    <div class="box"
+         style="background:var(--bp-white); color:var(--bp-text) !important; border:1px solid var(--bp-border);">
+        <b style="color:var(--bp-text) !important;">Configuration</b><br>
+        <small style="color:var(--bp-text-muted) !important;">How should it operate?</small>
+    </div>
+
+    <div class="arrow" style="color:var(--bp-green) !important;">→</div>
+
+    <div class="box"
+         style="background:var(--bp-white); color:var(--bp-text) !important; border:1px solid var(--bp-border);">
+        <b style="color:var(--bp-text) !important;">Lifecycle</b><br>
+        <small style="color:var(--bp-text-muted) !important;">When does it participate?</small>
+    </div>
+
+    <div class="arrow" style="color:var(--bp-green) !important;">→</div>
+
+    <div class="box"
+         style="background:var(--bp-white); color:var(--bp-text) !important; border:1px solid var(--bp-border);">
+        <b style="color:var(--bp-text) !important;">Runtime</b><br>
+        <small style="color:var(--bp-text-muted) !important;">What is happening now?</small>
+    </div>
+
+    <div class="arrow" style="color:var(--bp-green) !important;">→</div>
+
+    <div class="box"
+         style="background:var(--bp-white); color:var(--bp-text) !important; border:1px solid var(--bp-border);">
+        <b style="color:var(--bp-text) !important;">Capabilities</b><br>
+        <small style="color:var(--bp-text-muted) !important;">What can it provide/extend?</small>
+    </div>
+</div>
+  <p class="lead reveal" style="margin-top:42px">This is not a pipeline to be implemented literally. It is a responsibility map: each subsystem continuously contributes information, decisions, state, and contracts to the same Commerce runtime.</p>
+ </div><span class="slide-number">19 / 20</span>
+</section>
+
+<section class="slide">
+ <div class="inner">
+  <div class="kicker reveal"><span class="dot"></span> Final Architecture</div>
+  <h2 class="reveal">The Core should make the ecosystem understandable, deterministic, extensible, and resilient.</h2>
+  <div class="code reveal" style="margin-top:42px">
+   <span class="g">BONIKPRESS COMMERCE CORE</span><br>
+   │<br>
+   ├── 01 Ecosystem Lifecycle<br>
+   ├── 02 Component Registry<br>
+   ├── 03 Dependency & Compatibility<br>
+   ├── 04 Provider Management<br>
+   ├── 05 Configuration<br>
+   ├── 06 Ecosystem Runtime & Coordination<br>
+   └── 07 Capabilities & Extension System<br><br>
+   <span class="m">                    ↓</span><br>
+   <span class="w">Independent Commerce products become one coherent ecosystem.</span>
+  </div>
+  <div class="callout reveal"><strong>Architectural north star</strong><p>BonikPress should be able to know what exists, what each thing requires, what each thing provides, what can coexist, what can extend what, what is ready, what is available, what has failed, and how the ecosystem should respond — without forcing every product to become a monolith.</p></div>
+ </div><span class="slide-number">20 / 20</span>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="brand" style="justify-content:center"><span class="brand-mark">BP</span><span>BonikPress Commerce Core</span></div>
+  <p>Architecture responsibility map · Commerce ecosystem · Seven foundational Core roles</p>
+  <small style="color:#8B9891">Built as a self-contained presentation</small>
+</footer>
+
+<script>
+const progress=document.getElementById('progress');
+function updateProgress(){
+  const h=document.documentElement.scrollHeight-window.innerHeight;
+  progress.style.width=(h>0?(window.scrollY/h)*100:0)+'%';
+}
+window.addEventListener('scroll',updateProgress,{passive:true});
+updateProgress();
+
+const observer=new IntersectionObserver((entries)=>{
+ entries.forEach(entry=>{if(entry.isIntersecting)entry.target.classList.add('visible')});
+},{threshold:.12});
+document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+
+document.querySelectorAll('.nav a').forEach(a=>{
+ a.addEventListener('click',()=>setTimeout(updateProgress,300));
+});
+</script>
+</body>
+</html>
