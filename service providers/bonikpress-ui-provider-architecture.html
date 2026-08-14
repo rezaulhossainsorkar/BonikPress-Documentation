@@ -1,0 +1,2163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B7A3B">
+  <title>BonikPress UI Provider — Architecture</title>
+  <style>
+    :root {
+      --bp-green: #0B7A3B;
+      --bp-green-light: #16A052;
+      --bp-green-pale: #DFF6E8;
+      --bp-green-soft: #E8F7ED;
+      --bp-deep: #063C25;
+      --bp-deep-2: #073B25;
+      --bp-text: #13231B;
+      --bp-text-muted: #66766D;
+      --bp-text-light: #8B9891;
+      --bp-white: #FFFFFF;
+      --bp-background: #FBFEFC;
+      --bp-background-soft: #F6FAF7;
+      --bp-background-green: #F1F9F3;
+      --bp-border: #E2EBE5;
+      --bp-border-green: #C9E5D2;
+      --bp-shadow: 0 18px 55px rgba(7, 75, 40, .09);
+      --bp-shadow-hover: 0 25px 65px rgba(7, 75, 40, .13);
+      --bp-radius-sm: 10px;
+      --bp-radius-md: 16px;
+      --bp-radius-lg: 21px;
+      --bp-radius-xl: 24px;
+      --bp-radius-xxl: 28px
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    html {
+      scroll-behavior: smooth
+    }
+
+    body {
+      margin: 0;
+      background: var(--bp-background);
+      color: var(--bp-text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+      line-height: 1.55;
+      overflow-x: hidden
+    }
+
+    body:before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .38;
+      background-image: radial-gradient(rgba(11, 122, 59, .08) 1px, transparent 1px);
+      background-size: 28px 28px;
+      mask-image: linear-gradient(var(--bp-deep), transparent 85%)
+    }
+
+    .progress {
+      position: fixed;
+      z-index: 100;
+      top: 0;
+      left: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--bp-green), var(--bp-green-light));
+      width: 0
+    }
+
+    .nav {
+      position: fixed;
+      z-index: 90;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(1220px, calc(100% - 28px));
+      height: 58px;
+      padding: 7px 10px 7px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid rgba(201, 229, 210, .9);
+      background: rgba(255, 255, 255, .78);
+      backdrop-filter: blur(20px);
+      border-radius: 999px;
+      box-shadow: var(--bp-shadow)
+    }
+
+    .logo {
+      font-weight: 900;
+      letter-spacing: -.045em;
+      color: var(--bp-deep);
+      white-space: nowrap
+    }
+
+    .logo b {
+      color: var(--bp-green)
+    }
+
+    .navlinks {
+      display: flex;
+      gap: 3px
+    }
+
+    .navlinks button,
+    .top {
+      border: 0;
+      background: transparent;
+      color: var(--bp-text-muted);
+      font: inherit;
+      font-size: 12px;
+      font-weight: 650;
+      padding: 8px 10px;
+      border-radius: 999px;
+      cursor: pointer
+    }
+
+    .navlinks button:hover,
+    .navlinks button.active {
+      background: var(--bp-green-soft);
+      color: var(--bp-green)
+    }
+
+    .top {
+      background: var(--bp-deep);
+      color: white
+    }
+
+    main {
+      width: min(1220px, calc(100% - 30px));
+      margin: auto
+    }
+
+    section {
+      min-height: 100vh;
+      padding: 125px 0 75px;
+      display: flex;
+      align-items: center;
+      position: relative
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap: 55px;
+      align-items: center;
+      width: 100%
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 11px;
+      border: 1px solid var(--bp-border-green);
+      background: var(--bp-green-soft);
+      border-radius: 999px;
+      color: var(--bp-green);
+      font-size: 11px;
+      font-weight: 850;
+      letter-spacing: .12em;
+      text-transform: uppercase
+    }
+
+    .eyebrow i {
+      width: 7px;
+      height: 7px;
+      background: var(--bp-green-light);
+      border-radius: 50%;
+      box-shadow: 0 0 0 5px var(--bp-green-pale)
+    }
+
+    h1 {
+      font-size: clamp(50px, 7vw, 88px);
+      line-height: .94;
+      letter-spacing: -.08em;
+      color: var(--bp-deep);
+      margin: 22px 0
+    }
+
+    h1 span {
+      color: var(--bp-green)
+    }
+
+    h2 {
+      font-size: clamp(34px, 5vw, 60px);
+      line-height: 1;
+      letter-spacing: -.065em;
+      color: var(--bp-deep);
+      margin: 14px 0
+    }
+
+    h3 {
+      font-size: 20px;
+      line-height: 1.1;
+      letter-spacing: -.025em;
+      color: var(--bp-deep);
+      margin: 0 0 9px
+    }
+
+    p {
+      color: var(--bp-text-muted);
+      font-size: 15px;
+      margin: 8px 0
+    }
+
+    .lead {
+      font-size: 19px;
+      max-width: 700px
+    }
+
+    .mini {
+      font-size: 12px;
+      color: var(--bp-text-light)
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: .7s ease
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: none
+    }
+
+    /* orbital hero */
+    .orbit-stage {
+      height: 570px;
+      border-radius: 34px;
+      background: radial-gradient(circle at center, var(--bp-white) 0 15%, var(--bp-background-soft) 42%, var(--bp-green-soft) 100%);
+      border: 1px solid var(--bp-border);
+      box-shadow: var(--bp-shadow-hover);
+      position: relative;
+      overflow: hidden
+    }
+
+    .orbit-stage:after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent 20%, rgba(255, 255, 255, .75), transparent 65%);
+      transform: translateX(-120%);
+      animation: sheen 6s infinite
+    }
+
+    @keyframes sheen {
+
+      45%,
+      100% {
+        transform: translateX(120%)
+      }
+    }
+
+    .orbit {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      border: 1px solid rgba(22, 160, 82, .18);
+      border-radius: 50%;
+      transform: translate(-50%, -50%) rotate(-10deg)
+    }
+
+    .o1 {
+      width: 310px;
+      height: 190px
+    }
+
+    .o2 {
+      width: 450px;
+      height: 280px;
+      border-color: rgba(22, 160, 82, .22);
+      transform: translate(-50%, -50%) rotate(18deg)
+    }
+
+    .o3 {
+      width: 590px;
+      height: 380px;
+      border-color: rgba(6, 60, 37, .12);
+      transform: translate(-50%, -50%) rotate(-15deg)
+    }
+
+    .core {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 126px;
+      height: 126px;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background: linear-gradient(145deg, var(--bp-white), var(--bp-green-soft));
+      border: 1px solid var(--bp-border-green);
+      box-shadow: 0 0 0 14px rgba(223, 246, 232, .5), 0 20px 45px rgba(7, 75, 40, .14);
+      display: grid;
+      place-items: center;
+      z-index: 4
+    }
+
+    .core .mark {
+      font-size: 43px;
+      font-weight: 950;
+      color: var(--bp-green)
+    }
+
+    .core small {
+      position: absolute;
+      top: 104px;
+      white-space: nowrap;
+      color: var(--bp-text-muted);
+      font-weight: 800;
+      font-size: 11px
+    }
+
+    .planet {
+      position: absolute;
+      width: 104px;
+      height: 104px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      z-index: 5;
+      color: white;
+      box-shadow: 0 18px 35px rgba(7, 75, 40, .18), inset -12px -14px 22px rgba(0, 0, 0, .08);
+      animation: pulse 4s ease-in-out infinite
+    }
+
+    .planet:after {
+      content: "";
+      position: absolute;
+      inset: 8px;
+      border: 1px solid rgba(255, 255, 255, .3);
+      border-radius: 50%
+    }
+
+    .planet strong {
+      font-size: 27px;
+      z-index: 2
+    }
+
+    .planet span {
+      position: absolute;
+      top: 115px;
+      white-space: nowrap;
+      color: var(--bp-deep);
+      font-size: 12px;
+      font-weight: 850
+    }
+
+    .p-ui {
+      background: linear-gradient(145deg, var(--bp-green-light), var(--bp-green));
+      left: 16%;
+      top: 22%;
+      animation-delay: .2s
+    }
+
+    .p-target {
+      background: linear-gradient(145deg, var(--bp-green-light), var(--bp-green-light));
+      right: 13%;
+      top: 17%;
+      animation-delay: .8s
+    }
+
+    .p-life {
+      background: linear-gradient(145deg, var(--bp-green-light), var(--bp-green));
+      left: 42%;
+      bottom: 10%;
+      animation-delay: 1.4s
+    }
+
+    .satellite {
+      position: absolute;
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: var(--bp-green-light);
+      box-shadow: 0 0 0 6px rgba(22, 160, 82, .1);
+      animation: drift 7s linear infinite
+    }
+
+    .s1 {
+      left: 32%;
+      top: 26%
+    }
+
+    .s2 {
+      right: 31%;
+      top: 58%;
+      animation-delay: 2s
+    }
+
+    .s3 {
+      left: 63%;
+      bottom: 23%;
+      animation-delay: 4s
+    }
+
+    @keyframes pulse {
+      50% {
+        transform: translateY(-6px) scale(1.025)
+      }
+    }
+
+    @keyframes drift {
+      50% {
+        transform: translate(35px, 15px)
+      }
+    }
+
+    /* reusable design cards */
+    .section-head {
+      max-width: 790px;
+      margin-bottom: 34px
+    }
+
+    .section-head .eyebrow {
+      margin-bottom: 4px
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      width: 100%
+    }
+
+    .card {
+      background: rgba(255, 255, 255, .92);
+      border: 1px solid var(--bp-border);
+      border-radius: var(--bp-radius-xl);
+      padding: 25px;
+      box-shadow: var(--bp-shadow);
+      transition: .3s ease;
+      position: relative;
+      overflow: hidden
+    }
+
+    .card:hover {
+      transform: translateY(-6px);
+      box-shadow: var(--bp-shadow-hover);
+      border-color: var(--bp-border-green)
+    }
+
+    .card .icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: var(--bp-green-soft);
+      color: var(--bp-green);
+      display: grid;
+      place-items: center;
+      font-size: 21px;
+      margin-bottom: 22px
+    }
+
+    .card .label {
+      font-size: 10px;
+      font-weight: 900;
+      color: var(--bp-green);
+      letter-spacing: .13em;
+      text-transform: uppercase;
+      margin-bottom: 7px
+    }
+
+    .wide {
+      grid-column: 1/-1
+    }
+
+    .statbar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      background: var(--bp-deep);
+      border-radius: 24px;
+      padding: 8px;
+      color: white;
+      box-shadow: var(--bp-shadow-hover);
+      margin-top: 18px
+    }
+
+    .stat {
+      padding: 20px;
+      text-align: center;
+      border-right: 1px solid rgba(255, 255, 255, .12)
+    }
+
+    .stat:last-child {
+      border: 0
+    }
+
+    .stat b {
+      font-size: 32px;
+      letter-spacing: -.06em
+    }
+
+    .stat span {
+      display: block;
+      color: var(--bp-border-green);
+      font-size: 12px;
+      margin-top: 3px
+    }
+
+    /* architecture */
+    .architecture {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 30px;
+      border-radius: 30px;
+      background: linear-gradient(145deg, var(--bp-background-soft), var(--bp-white));
+      border: 1px solid var(--bp-border);
+      box-shadow: var(--bp-shadow)
+    }
+
+    .arch-box {
+      flex: 1;
+      min-height: 145px;
+      border: 1px solid var(--bp-border);
+      background: var(--bp-white);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(7, 75, 40, .06);
+      position: relative
+    }
+
+    .arch-box.center {
+      flex: 1.2;
+      border-color: var(--bp-green-pale);
+      background: var(--bp-green-soft);
+      box-shadow: 0 15px 40px rgba(11, 122, 59, .12)
+    }
+
+    .arch-box .topline {
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: .11em;
+      color: var(--bp-green);
+      text-transform: uppercase
+    }
+
+    .arch-box strong {
+      display: block;
+      color: var(--bp-deep);
+      font-size: 19px;
+      margin: 7px 0
+    }
+
+    .arch-arrow {
+      color: var(--bp-green);
+      font-size: 24px;
+      font-weight: 800;
+      animation: arrowPulse 1.8s infinite
+    }
+
+    .arch-box.center:before {
+      content: "UI-INVOKED ACTIONS";
+      position: absolute;
+      top: -11px;
+      left: 18px;
+      padding: 3px 8px;
+      background: var(--bp-green);
+      color: white;
+      border-radius: 999px;
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: .08em
+    }
+
+    @keyframes arrowPulse {
+      50% {
+        transform: translateX(4px)
+      }
+    }
+
+    /* wide flow */
+    .flow-stack {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 0
+    }
+
+    .flow-card {
+      min-height: 150px;
+      background: white;
+      border: 1px solid var(--bp-border);
+      border-radius: 25px;
+      box-shadow: var(--bp-shadow);
+      padding: 26px 32px;
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      transition: .3s ease;
+      position: relative;
+      overflow: hidden
+    }
+
+    .flow-card:hover {
+      transform: translateX(7px);
+      box-shadow: var(--bp-shadow-hover);
+      border-color: var(--bp-border-green)
+    }
+
+    .flow-num {
+      width: 58px;
+      height: 58px;
+      flex: 0 0 58px;
+      border-radius: 18px;
+      background: var(--bp-green-soft);
+      color: var(--bp-green);
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      font-size: 18px
+    }
+
+    .flow-content {
+      flex: 1
+    }
+
+    .flow-content h3 {
+      font-size: 24px;
+      margin-bottom: 5px
+    }
+
+    .flow-side {
+      min-width: 220px;
+      text-align: right
+    }
+
+    .flow-side span {
+      display: inline-block;
+      padding: 7px 11px;
+      background: var(--bp-background-green);
+      border: 1px solid var(--bp-border-green);
+      border-radius: 999px;
+      color: var(--bp-green);
+      font-size: 11px;
+      font-weight: 800
+    }
+
+    .connector {
+      height: 44px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative
+    }
+
+    .connector:before {
+      content: "";
+      height: 28px;
+      border-left: 2px dashed var(--bp-green-pale)
+    }
+
+    .connector:after {
+      content: "↓";
+      position: absolute;
+      bottom: -1px;
+      color: var(--bp-green);
+      font-weight: 900;
+      font-size: 17px
+    }
+
+    /* roles */
+    .role-panel {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+      width: 100%
+    }
+
+    .role-card {
+      background: var(--bp-white);
+      border: 1px solid var(--bp-border);
+      border-radius: 26px;
+      padding: 26px;
+      box-shadow: var(--bp-shadow);
+      min-height: 430px;
+      transition: .3s
+    }
+
+    .role-card:hover {
+      transform: translateY(-7px);
+      box-shadow: var(--bp-shadow-hover)
+    }
+
+    .role-card:nth-child(1) {
+      border-top: 5px solid var(--bp-green)
+    }
+
+    .role-card:nth-child(2) {
+      border-top: 5px solid var(--bp-green-light)
+    }
+
+    .role-card:nth-child(3) {
+      border-top: 5px solid var(--bp-green)
+    }
+
+    .role-num {
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .12em;
+      color: var(--bp-text-light)
+    }
+
+    .role-card h3 {
+      font-size: 25px;
+      margin: 12px 0
+    }
+
+    .role-card ul {
+      padding: 0;
+      margin: 20px 0 0;
+      list-style: none
+    }
+
+    .role-card li {
+      padding: 10px 0;
+      border-bottom: 1px solid var(--bp-border);
+      font-size: 13px;
+      color: var(--bp-text-muted);
+      display: flex;
+      gap: 9px
+    }
+
+    .role-card li:before {
+      content: "✓";
+      color: var(--bp-green);
+      font-weight: 900
+    }
+
+    /* lifecycle */
+    .lifecycle {
+      position: relative;
+      width: 100%;
+      padding: 30px 0 5px
+    }
+
+    .life-line {
+      height: 4px;
+      background: linear-gradient(90deg, var(--bp-green), var(--bp-green-light), var(--bp-green));
+      position: absolute;
+      left: 8%;
+      right: 8%;
+      top: 74px;
+      border-radius: 9px
+    }
+
+    .life-steps {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 14px;
+      position: relative
+    }
+
+    .life-step {
+      text-align: center
+    }
+
+    .life-dot {
+      width: 78px;
+      height: 78px;
+      margin: auto;
+      border-radius: 50%;
+      background: var(--bp-white);
+      border: 7px solid var(--bp-green-pale);
+      box-shadow: 0 10px 28px rgba(7, 75, 40, .1);
+      display: grid;
+      place-items: center;
+      color: var(--bp-green);
+      font-weight: 900;
+      font-size: 18px;
+      position: relative;
+      z-index: 2
+    }
+
+    .life-step:nth-child(2) .life-dot {
+      border-color: var(--bp-green-pale);
+      color: var(--bp-green-light)
+    }
+
+    .life-step:nth-child(3) .life-dot {
+      border-color: var(--bp-green-pale);
+      color: var(--bp-green)
+    }
+
+    .life-step:nth-child(4) .life-dot {
+      border-color: var(--bp-green-pale);
+      color: var(--bp-green)
+    }
+
+    .life-step:nth-child(5) .life-dot {
+      border-color: var(--bp-green-pale);
+      color: var(--bp-green)
+    }
+
+    .life-step h3 {
+      margin-top: 18px;
+      font-size: 16px
+    }
+
+    .life-step p {
+      font-size: 12px
+    }
+
+    /* diagnostics */
+    .diag-board {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 18px
+    }
+
+    .signal-card {
+      background: var(--bp-deep);
+      border-radius: 28px;
+      padding: 30px;
+      color: white;
+      box-shadow: var(--bp-shadow-hover);
+      min-height: 340px
+    }
+
+    .signal-card h3 {
+      color: white;
+      font-size: 27px
+    }
+
+    .signal {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, .12)
+    }
+
+    .signal:last-child {
+      border: 0
+    }
+
+    .signal i {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: var(--bp-green-pale);
+      box-shadow: 0 0 0 6px rgba(91, 224, 148, .12)
+    }
+
+    .signal span {
+      color: var(--bp-border-green);
+      font-size: 13px
+    }
+
+    .signal b {
+      margin-left: auto;
+      font-size: 12px;
+      color: white
+    }
+
+    .diag-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px
+    }
+
+    .diag {
+      background: white;
+      border: 1px solid var(--bp-border);
+      border-radius: 22px;
+      padding: 22px;
+      box-shadow: var(--bp-shadow)
+    }
+
+    .diag b {
+      display: block;
+      font-size: 27px;
+      color: var(--bp-green);
+      letter-spacing: -.05em
+    }
+
+    .diag p {
+      font-size: 12px
+    }
+
+    /* roadmap */
+    .roadmap {
+      width: 100%;
+      display: flex;
+      align-items: stretch;
+      gap: 10px
+    }
+
+    .road {
+      flex: 1;
+      background: white;
+      border: 1px solid var(--bp-border);
+      border-radius: 23px;
+      padding: 22px;
+      box-shadow: var(--bp-shadow);
+      position: relative;
+      overflow: hidden
+    }
+
+    .road:before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--bp-green)
+    }
+
+    .road:nth-child(2):before {
+      background: var(--bp-green-light)
+    }
+
+    .road:nth-child(3):before {
+      background: var(--bp-green)
+    }
+
+    .road:nth-child(4):before {
+      background: var(--bp-green-light)
+    }
+
+    .road:nth-child(5):before {
+      background: var(--bp-green-light)
+    }
+
+    .road b {
+      font-size: 12px;
+      color: var(--bp-text-light)
+    }
+
+    .road h3 {
+      margin-top: 12px
+    }
+
+    .road p {
+      font-size: 12px
+    }
+
+    /* final */
+    .final {
+      background: linear-gradient(145deg, var(--bp-deep), var(--bp-green));
+      color: white;
+      border-radius: 36px;
+      padding: 65px;
+      box-shadow: var(--bp-shadow-hover);
+      overflow: hidden;
+      position: relative
+    }
+
+    .final:after {
+      content: "";
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      border: 1px solid rgba(255, 255, 255, .1);
+      border-radius: 50%;
+      right: -180px;
+      top: -180px
+    }
+
+    .final h2 {
+      color: white
+    }
+
+    .final p {
+      color: var(--bp-border-green)
+    }
+
+    .principles {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+      margin-top: 24px
+    }
+
+    .principles span {
+      padding: 9px 13px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, .18);
+      background: rgba(255, 255, 255, .08);
+      font-size: 12px;
+      color: var(--bp-green-soft)
+    }
+
+    footer {
+      text-align: center;
+      padding: 45px 0 70px;
+      color: var(--bp-text-light);
+      font-size: 12px
+    }
+
+    @media(max-width:900px) {
+      .navlinks {
+        display: none
+      }
+
+      .hero {
+        grid-template-columns: 1fr
+      }
+
+      .orbit-stage {
+        height: 480px
+      }
+
+      .cards,
+      .role-panel,
+      .diag-board,
+      .roadmap {
+        grid-template-columns: 1fr;
+        display: grid
+      }
+
+      .architecture {
+        flex-direction: column
+      }
+
+      .arch-arrow {
+        transform: rotate(90deg)
+      }
+
+      .life-steps {
+        grid-template-columns: 1fr
+      }
+
+      .life-line {
+        display: none
+      }
+
+      .flow-side {
+        text-align: left;
+        min-width: 0
+      }
+
+      .flow-card {
+        align-items: flex-start
+      }
+
+      .statbar {
+        grid-template-columns: 1fr 1fr
+      }
+
+      .stat:nth-child(2) {
+        border-right: 0
+      }
+
+      .stat:nth-child(-n+2) {
+        border-bottom: 1px solid rgba(255, 255, 255, .12)
+      }
+
+      .final {
+        padding: 35px 25px
+      }
+    }
+
+    /* Expanded presentation modules */
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      width: 100%
+    }
+
+    .detail-card {
+      background: var(--bp-white);
+      border: 1px solid var(--bp-border);
+      border-radius: 24px;
+      padding: 27px;
+      box-shadow: var(--bp-shadow);
+      position: relative;
+      overflow: hidden
+    }
+
+    .detail-card:before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: var(--bp-green)
+    }
+
+    .detail-card.blue:before {
+      background: var(--bp-green-light)
+    }
+
+    .detail-card.purple:before {
+      background: var(--bp-green)
+    }
+
+    .detail-card.orange:before {
+      background: var(--bp-green-light)
+    }
+
+    .detail-card h3 {
+      font-size: 22px
+    }
+
+    .detail-card p {
+      font-size: 14px
+    }
+
+    .detail-card ul {
+      margin: 14px 0 0;
+      padding-left: 19px;
+      color: var(--bp-text-muted);
+      font-size: 13px
+    }
+
+    .detail-card li {
+      margin: 7px 0
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 15px
+    }
+
+    .pill {
+      padding: 7px 10px;
+      border: 1px solid var(--bp-border-green);
+      background: var(--bp-green-soft);
+      border-radius: 999px;
+      color: var(--bp-green);
+      font-size: 11px;
+      font-weight: 800
+    }
+
+    .matrix {
+      width: 100%;
+      border: 1px solid var(--bp-border);
+      border-radius: 25px;
+      overflow: hidden;
+      background: var(--bp-white);
+      box-shadow: var(--bp-shadow)
+    }
+
+    .matrix-row {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr 1fr 1fr;
+      border-bottom: 1px solid var(--bp-border)
+    }
+
+    .matrix-row:last-child {
+      border: 0
+    }
+
+    .matrix-row>div {
+      padding: 16px;
+      border-right: 1px solid var(--bp-border);
+      font-size: 12px;
+      color: var(--bp-text-muted)
+    }
+
+    .matrix-row>div:last-child {
+      border: 0
+    }
+
+    .matrix-row.head>div {
+      background: var(--bp-background-green);
+      color: var(--bp-deep);
+      font-weight: 900;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .08em
+    }
+
+    .matrix-row>div:first-child {
+      font-weight: 850;
+      color: var(--bp-deep)
+    }
+
+    .scenario {
+      background: linear-gradient(145deg, var(--bp-white), var(--bp-background-soft));
+      border: 1px solid var(--bp-border-green);
+      border-radius: 28px;
+      padding: 30px;
+      box-shadow: var(--bp-shadow);
+      display: grid;
+      grid-template-columns: 90px 1fr;
+      gap: 22px;
+      align-items: start
+    }
+
+    .scenario-icon {
+      width: 76px;
+      height: 76px;
+      border-radius: 24px;
+      background: var(--bp-green-soft);
+      color: var(--bp-green);
+      display: grid;
+      place-items: center;
+      font-size: 29px;
+      font-weight: 900
+    }
+
+    .quote {
+      border-left: 4px solid var(--bp-green);
+      padding: 8px 0 8px 18px;
+      margin-top: 18px;
+      color: var(--bp-deep);
+      font-size: 17px;
+      font-weight: 700
+    }
+
+    .rule-board {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      width: 100%
+    }
+
+    .rule {
+      background: var(--bp-white);
+      border: 1px solid var(--bp-border);
+      border-radius: 21px;
+      padding: 22px;
+      box-shadow: var(--bp-shadow)
+    }
+
+    .rule b {
+      display: block;
+      color: var(--bp-green);
+      font-size: 12px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      margin-bottom: 8px
+    }
+
+    .rule p {
+      font-size: 13px
+    }
+
+    .end-note {
+      margin-top: 24px;
+      padding: 22px 25px;
+      border-radius: 22px;
+      background: var(--bp-green-soft);
+      border: 1px solid var(--bp-border-green);
+      color: var(--bp-deep);
+      font-size: 14px
+    }
+
+    @media(max-width:900px) {
+
+      .detail-grid,
+      .rule-board {
+        grid-template-columns: 1fr
+      }
+
+      .matrix {
+        overflow-x: auto
+      }
+
+      .matrix-row {
+        min-width: 720px
+      }
+
+      .scenario {
+        grid-template-columns: 1fr
+      }
+
+      .scenario-icon {
+        width: 62px;
+        height: 62px
+      }
+    }
+
+
+    .atlas {
+      background: var(--bp-white);
+      border: 1px solid var(--bp-border);
+      border-radius: 28px;
+      box-shadow: var(--bp-shadow);
+      overflow: hidden
+    }
+
+    .atlas-tabs {
+      display: flex;
+      gap: 8px;
+      padding: 12px;
+      border-bottom: 1px solid var(--bp-border);
+      background: var(--bp-background-green)
+    }
+
+    .atlas-tab {
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--bp-text-muted);
+      padding: 13px 16px;
+      border-radius: 15px;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 850;
+      cursor: pointer;
+      transition: .25s
+    }
+
+    .atlas-tab span {
+      display: inline-grid;
+      place-items: center;
+      min-width: 23px;
+      height: 23px;
+      margin-left: 6px;
+      border-radius: 999px;
+      background: var(--bp-white);
+      border: 1px solid var(--bp-border-green);
+      color: var(--bp-green);
+      font-size: 10px
+    }
+
+    .atlas-tab:hover,
+    .atlas-tab.active {
+      background: var(--bp-white);
+      border-color: var(--bp-border-green);
+      color: var(--bp-deep);
+      box-shadow: 0 8px 22px rgba(7, 75, 40, .06)
+    }
+
+    .atlas-panel {
+      display: none;
+      padding: 20px
+    }
+
+    .atlas-panel.active {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px
+    }
+
+    .atlas-item {
+      border: 1px solid var(--bp-border);
+      border-radius: 18px;
+      padding: 18px;
+      background: var(--bp-background-soft);
+      cursor: pointer;
+      transition: .25s;
+      min-height: 128px
+    }
+
+    .atlas-item:hover,
+    .atlas-item.open {
+      background: var(--bp-green-soft);
+      border-color: var(--bp-border-green);
+      transform: translateY(-2px)
+    }
+
+    .atlas-item .num {
+      font-size: 10px;
+      font-weight: 900;
+      color: var(--bp-green);
+      letter-spacing: .1em
+    }
+
+    .atlas-item h4 {
+      margin: 7px 0 5px;
+      font-size: 15px;
+      color: var(--bp-deep)
+    }
+
+    .atlas-item p {
+      font-size: 12px;
+      line-height: 1.55;
+      margin: 0;
+      color: var(--bp-text-muted)
+    }
+
+    .atlas-item .more {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height .3s ease
+    }
+
+    .atlas-item.open .more {
+      max-height: 80px;
+      margin-top: 8px
+    }
+
+    @media(max-width:900px) {
+      .atlas-tabs {
+        flex-wrap: wrap
+      }
+
+      .atlas-panel.active {
+        grid-template-columns: 1fr 1fr
+      }
+    }
+
+    @media(max-width:600px) {
+      .atlas-panel.active {
+        grid-template-columns: 1fr
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="progress" id="progress"></div>
+  <nav class="nav">
+    <div class="logo">
+      BONIK<span>PRESS</span> · UI PROVIDER
+    </div>
+
+    <div class="navlinks">
+      <button data-target="vision">Vision</button>
+      <button data-target="boundary">Architecture</button>
+      <button data-target="flow">Action Flow</button>
+      <button data-target="roles">Major Roles</button>
+      <button data-target="subroles">Sub-Roles</button>
+      <button data-target="roadmap">Roadmap</button>
+      <button class="top" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+        Top ↑
+      </button>
+    </div>
+  </nav>
+
+  <main>
+    <section id="top">
+      <div class="hero">
+        <div class="reveal">
+          <span class="eyebrow"><i></i> BonikPress Architecture</span>
+          <h1>UI Provider<br><span>designed around intent.</span></h1>
+          <p class="lead">A focused infrastructure for reusable interface components and the actions those interfaces
+            invoke.</p>
+          <p>The provider gives the ecosystem a shared vocabulary for reusable interfaces and UI-originated actions
+            while preserving boundaries with the other providers.</p>
+          <p>A reusable button declares intent; the provider supplies the common invocation machinery; the downstream
+            authority keeps ownership of its own work.</p>
+        </div>
+        <div class="orbit-stage reveal" aria-label="Animated UI Provider orbital model">
+          <div class="orbit o1"></div>
+          <div class="orbit o2"></div>
+          <div class="orbit o3"></div>
+          <div class="satellite s1"></div>
+          <div class="satellite s2"></div>
+          <div class="satellite s3"></div>
+          <div class="core">
+            <div class="mark">B</div><small>UI Provider</small>
+          </div>
+          <div class="planet p-ui"><strong>◇</strong><span>UI Components</span></div>
+          <div class="planet p-target"><strong>◎</strong><span>Action Targets</span></div>
+          <div class="planet p-life"><strong>⌁</strong><span>Lifecycle + Diagnostics</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="vision">
+      <div style="width:100%">
+        <div class="section-head reveal"><span class="eyebrow">01 · Vision</span>
+          <h2>One surface. One language for UI intent.</h2>
+          <p class="lead">The UI Provider should make common interface patterns reusable while giving every UI-triggered
+            action a predictable, inspectable path.</p>
+        </div>
+        <div class="cards">
+          <article class="card reveal">
+            <div class="icon">▦</div>
+            <div class="label">Reusable surface</div>
+            <h3>Components become building blocks</h3>
+            <p>Buttons, fields, tables, modals, notices and future components are defined once and consumed consistently
+              across plugins, bundles and the wider BonikPress ecosystem.</p>
+          </article>
+          <article class="card reveal">
+            <div class="icon">◎</div>
+            <div class="label">Declarative intent</div>
+            <h3>UI declares what it wants</h3>
+            <p>A component identifies an action target. The component does not carry the underlying callback, request,
+              or application-specific execution machinery.</p>
+          </article>
+          <article class="card reveal">
+            <div class="icon">⌁</div>
+            <div class="label">Controlled action</div>
+            <h3>Invocation becomes infrastructure</h3>
+            <p>Once an action is invoked, the provider can validate it, establish its lifecycle, track state and explain
+              its outcome without owning unrelated domains.</p>
+          </article>
+        </div>
+        <div class="statbar reveal">
+          <div class="stat"><b>01</b><span>Reusable UI language</span></div>
+          <div class="stat"><b>03</b><span>Major action roles</span></div>
+          <div class="stat"><b>∞</b><span>Composable ecosystem uses</span></div>
+          <div class="stat"><b>0</b><span>HTTP/data ownership</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="boundary">
+      <div style="width:100%">
+        <div class="section-head reveal"><span class="eyebrow">02 · Infrastructure</span>
+          <h2>Clear boundaries make the provider powerful.</h2>
+          <p>The UI Provider coordinates UI-originated action behavior while neighboring authorities keep their own
+            domains.</p>
+          <p>It may start an action that eventually needs HTTP or data, but those concerns remain with Request Manager
+            or Storage & Data.</p>
+        </div>
+        <div class="architecture reveal">
+          <div class="arch-box">
+            <div class="topline">Authority 01</div><strong>Core Manager</strong>
+            <p>Ecosystem lifecycle, registration, dependencies, capabilities and coordination.</p>
+          </div>
+          <div class="arch-arrow">↔</div>
+          <div class="arch-box">
+            <div class="topline">Authority 02</div><strong>Request Manager</strong>
+            <p>HTTP, AJAX, GET/POST and ecosystem-level request communication.</p>
+          </div>
+          <div class="arch-arrow">↔</div>
+          <div class="arch-box center">
+            <div class="topline">Authority 03</div><strong>UI Provider</strong>
+            <p>Reusable UI plus UI-invoked action targets, lifecycle and diagnostics.</p>
+          </div>
+          <div class="arch-arrow">↔</div>
+          <div class="arch-box">
+            <div class="topline">Authority 04</div><strong>Storage & Data</strong>
+            <p>All data-related operations, structures, querying, integrity and consistency.</p>
+          </div>
+        </div>
+        <div class="cards" style="margin-top:18px">
+          <article class="card reveal">
+            <div class="label">UI Provider owns</div>
+            <h3>The action because it began at the UI</h3>
+            <p>Target identity, action invocation, lifecycle state, completion/failure and action-specific diagnostics.
+            </p>
+          </article>
+          <article class="card reveal">
+            <div class="label">UI Provider does not own</div>
+            <h3>The downstream domain operation</h3>
+            <p>HTTP is not UI infrastructure. Data is not UI infrastructure. Ecosystem lifecycle is not UI
+              infrastructure.</p>
+          </article>
+          <article class="card reveal">
+            <div class="label">Boundary principle</div>
+            <h3>Coordinate, don't absorb</h3>
+            <p>The provider may hand work across boundaries, but ownership stays with the authority designed for that
+              concern.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="flow">
+      <div style="width:100%">
+        <div class="section-head reveal"><span class="eyebrow">03 · Runtime journey</span>
+          <h2>From a reusable button to a real action</h2>
+          <p class="lead">The flow is intentionally linear and easy to reason about: the component declares intent, the
+            UI Provider governs the UI action, and downstream authorities handle their own domains.</p>
+          <p>The calling mechanism is predefined once. Consuming code selects a reusable component and identifies its
+            target instead of rebuilding event handling, lookup, validation and diagnostics.</p>
+        </div>
+        <div class="flow-stack">
+          <div class="flow-card reveal">
+            <div class="flow-num">01</div>
+            <div class="flow-content">
+              <h3>Interface component is rendered</h3>
+              <p>A reusable BonikPress component appears in the consuming plugin, bundle or ecosystem interface. Its
+                visual and interaction behavior comes from the shared UI library. The consumer supplies specifications
+                such as labels, appearance and the action target rather than rewriting the component's internal markup
+                and event plumbing.</p>
+            </div>
+            <div class="flow-side"><span>Reusable UI</span></div>
+          </div>
+          <div class="connector"></div>
+          <div class="flow-card reveal">
+            <div class="flow-num">02</div>
+            <div class="flow-content">
+              <h3>User expresses an intention</h3>
+              <p>The interaction produces a target identifier. The UI does not need to know which callback, request
+                pathway or data operation eventually fulfills the intention. This separation is what allows the same
+                component pattern to be reused in very different products without coupling the visual component to a
+                particular business operation.</p>
+            </div>
+            <div class="flow-side"><span>Target declared</span></div>
+          </div>
+          <div class="connector"></div>
+          <div class="flow-card reveal">
+            <div class="flow-num">03</div>
+            <div class="flow-content">
+              <h3>Action target is resolved and validated</h3>
+              <p>The provider determines whether the requested target exists, is properly registered, is usable and can
+                accept the invocation. This is also the natural point for developer-facing validation: a missing
+                callback, duplicate target or invalid specification can be detected before the action reaches an
+                unpredictable downstream state.</p>
+            </div>
+            <div class="flow-side"><span>Target Management</span></div>
+          </div>
+          <div class="connector"></div>
+          <div class="flow-card reveal">
+            <div class="flow-num">04</div>
+            <div class="flow-content">
+              <h3>Action lifecycle begins</h3>
+              <p>A concrete invocation is initialized and moves through controlled states. Execution coordination
+                happens without stealing ownership from Request Manager or Storage & Data. The provider owns the
+                UI-action journey, while the domain provider owns the domain work.</p>
+            </div>
+            <div class="flow-side"><span>Lifecycle Management</span></div>
+          </div>
+          <div class="connector"></div>
+          <div class="flow-card reveal">
+            <div class="flow-num">05</div>
+            <div class="flow-content">
+              <h3>Outcome is observed and explained</h3>
+              <p>The action reaches completion, failure or another terminal state. Diagnostics preserve enough context
+                to understand what happened and why. A useful outcome is therefore more than “callback returned”: it
+                tells the ecosystem whether the intended action was accepted, executed, completed, failed or stopped.
+              </p>
+            </div>
+            <div class="flow-side"><span>Diagnostics</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="roles">
+      <div style="width:100%">
+        <div class="section-head reveal"><span class="eyebrow">04 · Major roles</span>
+          <h2>Three domains. One coherent action system.</h2>
+          <p>Every responsibility should fit under one of these three roles. Their sub-roles provide structure without
+            turning the provider into an ecosystem-wide service container.</p>
+        </div>
+        <div class="role-panel">
+          <article class="role-card reveal">
+            <div class="role-num">ROLE 01</div>
+            <h3>Action Target Management</h3>
+            <p>Controls what UI components are allowed to invoke and how those targets are represented. A target is the
+              stable identity of an intention, not the implementation detail of the callback behind it.</p>
+            <ul>
+              <li>Target Definition</li>
+              <li>Target Registration</li>
+              <li>Target Identification</li>
+              <li>Target Resolution</li>
+              <li>Target Validation</li>
+              <li>Target Availability</li>
+              <li>Target Configuration</li>
+            </ul>
+            <p class="mini">Its key question: “When a component says this target name, can the provider reliably
+              identify the action that name represents?”</p>
+          </article>
+          <article class="role-card reveal">
+            <div class="role-num">ROLE 02</div>
+            <h3>Action Lifecycle Management</h3>
+            <p>Controls the journey of a particular UI-invoked action from invocation to terminal state. It gives the
+              action a predictable beginning, middle and conclusion rather than treating a callback as an isolated
+              function call.</p>
+            <ul>
+              <li>Action Invocation</li>
+              <li>Action Validation</li>
+              <li>Action Initialization</li>
+              <li>Action State Management</li>
+              <li>Execution Coordination</li>
+              <li>Completion Management</li>
+              <li>Failure Management</li>
+              <li>Cancellation & Cleanup</li>
+            </ul>
+            <p class="mini">Its key question: “What state is this UI-originated action in, and what is the next valid
+              transition?”</p>
+          </article>
+          <article class="role-card reveal">
+            <div class="role-num">ROLE 03</div>
+            <h3>Action Diagnostics</h3>
+            <p>Makes UI-invoked action behavior visible, traceable and understandable for development and
+              troubleshooting. The goal is not noise; the goal is enough context to explain an invocation when something
+              goes wrong.</p>
+            <ul>
+              <li>Action Observation</li>
+              <li>Action Logging</li>
+              <li>Error Diagnostics</li>
+              <li>State Diagnostics</li>
+              <li>Execution Tracing</li>
+              <li>Diagnostic Reporting</li>
+            </ul>
+            <p class="mini">Its key question: “Can a developer understand what happened to this action without
+              reconstructing the entire system manually?”</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="lifecycle">
+      <div style="width:100%">
+        <div class="section-head reveal"><span class="eyebrow">05 · Lifecycle engine</span>
+          <h2>An action should have a journey, not a jump.</h2>
+          <p>A predictable lifecycle gives each accepted UI action a controlled beginning, progression and terminal
+            state, including validation, failure and cleanup.</p>
+        </div>
+        <div class="lifecycle reveal">
+          <div class="life-line"></div>
+          <div class="life-steps">
+            <div class="life-step">
+              <div class="life-dot">01</div>
+              <h3>Invoke</h3>
+              <p>A UI interaction creates an action invocation.</p>
+            </div>
+            <div class="life-step">
+              <div class="life-dot">02</div>
+              <h3>Validate</h3>
+              <p>Target and invocation requirements are checked.</p>
+            </div>
+            <div class="life-step">
+              <div class="life-dot">03</div>
+              <h3>Initialize</h3>
+              <p>The action receives its starting state and context.</p>
+            </div>
+            <div class="life-step">
+              <div class="life-dot">04</div>
+              <h3>Coordinate</h3>
+              <p>Execution proceeds across the correct authority boundary.</p>
+            </div>
+            <div class="life-step">
+              <div class="life-dot">05</div>
+              <h3>Conclude</h3>
+              <p>Completion, failure, cancellation and diagnostics settle the action.</p>
+            </div>
+          </div>
+        </div>
+        <div class="cards" style="margin-top:35px">
+          <article class="card reveal">
+            <div class="icon">✓</div>
+            <h3>Target validation</h3>
+            <p>“Does this target exist and is its definition usable?”</p>
+          </article>
+          <article class="card reveal">
+            <div class="icon">◌</div>
+            <h3>Invocation validation</h3>
+            <p>“Can this particular request to invoke the target proceed?”</p>
+          </article>
+          <article class="card reveal">
+            <div class="icon">↗</div>
+            <h3>Execution boundary</h3>
+            <p>“Which authority owns the work required to fulfill the action?”</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div style="width:100%">
+        <div class="section-head reveal"><span class="eyebrow">06 · Diagnostics</span>
+          <h2>Visibility without becoming a universal logger.</h2>
+          <p>Diagnostics answer action-specific questions: what was requested, resolved, executed, and what outcome
+            occurred. They are not a replacement for subsystem-specific logging.</p>
+        </div>
+        <div class="diag-board">
+          <div class="signal-card reveal">
+            <h3>Action signal stream</h3>
+            <div class="signal"><i></i><span>Target identified</span><b>OK</b></div>
+            <div class="signal"><i></i><span>Target resolved</span><b>OK</b></div>
+            <div class="signal"><i></i><span>Invocation validated</span><b>OK</b></div>
+            <div class="signal"><i></i><span>Lifecycle entered executing</span><b>ACTIVE</b></div>
+            <div class="signal"><i></i><span>External authority involved</span><b>REQUEST</b></div>
+            <div class="signal"><i></i><span>Final outcome recorded</span><b>READY</b></div>
+          </div>
+          <div class="diag-cards">
+            <div class="diag reveal"><b>01</b>
+              <h3>Observe</h3>
+              <p>Capture meaningful lifecycle events.</p>
+            </div>
+            <div class="diag reveal"><b>02</b>
+              <h3>Log</h3>
+              <p>Preserve useful action context.</p>
+            </div>
+            <div class="diag reveal"><b>03</b>
+              <h3>Trace</h3>
+              <p>Show how an invocation moved through the system.</p>
+            </div>
+            <div class="diag reveal"><b>04</b>
+              <h3>Report</h3>
+              <p>Expose understandable diagnostic information.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <section>
+      <div style="width:100%">
+        <div class="section-head reveal"><span class="eyebrow">06 · Sub-role map</span>
+          <h2>What actually lives underneath the three roles?</h2>
+          <p>The major roles are containers for related responsibilities. This prevents every new requirement from
+            becoming a new top-level subsystem.</p>
+        </div>
+        <div class="detail-grid">
+          <article class="detail-card reveal">
+            <h3>Target definition & registration</h3>
+            <p>Give every action a stable identity and an explicit registration point.</p>
+            <div class="pill-row"><span class="pill">Identity, registration, availability.</span></div>
+          </article>
+          <article class="detail-card reveal">
+            <h3>Resolution & validation</h3>
+            <p>Resolve the requested target and reject missing, malformed or unusable invocations early.</p>
+            <div class="pill-row"><span class="pill">Resolve, validate, reject.</span></div>
+          </article>
+          <article class="detail-card reveal">
+            <h3>Invocation & initialization</h3>
+            <p>Create the action context, establish initial state and prepare execution metadata.</p>
+            <div class="pill-row"><span class="pill">Context, state, metadata.</span></div>
+          </article>
+          <article class="detail-card reveal">
+            <h3>Execution coordination</h3>
+            <p>Invoke the action boundary while leaving HTTP, data and domain work to their owners.</p>
+            <div class="pill-row"><span class="pill">Coordinate, delegate, observe.</span></div>
+          </article>
+          <article class="detail-card reveal">
+            <h3>State & terminal outcomes</h3>
+            <p>Track meaningful transitions and distinguish completion, failure and cancellation.</p>
+            <div class="pill-row"><span class="pill">Transitions, outcomes, cleanup.</span></div>
+          </article>
+          <article class="detail-card reveal">
+            <h3>Observation & reporting</h3>
+            <p>Capture the action events and context needed to explain what happened.</p>
+            <div class="pill-row"><span class="pill">Observe, trace, report.</span></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+
+    <section id="subroles">
+      <div style="width:100%">
+        <div class="section-head reveal"><span class="eyebrow">07 · Complete sub-role atlas</span>
+          <h2>Every sub-role, one clear responsibility.</h2>
+          <p>Select a role to explore its sub-roles. Each one has a deliberately narrow responsibility so the provider
+            stays understandable.</p>
+        </div>
+        <div class="atlas reveal">
+          <div class="atlas-tabs">
+            <button class="atlas-tab active" data-role="targets">Action Target Management <span>7</span></button>
+            <button class="atlas-tab" data-role="lifecycle">Action Lifecycle Management <span>8</span></button>
+            <button class="atlas-tab" data-role="diagnostics">Action Diagnostics <span>6</span></button>
+          </div>
+          <div class="atlas-panel active" id="atlas-targets"></div>
+          <div class="atlas-panel" id="atlas-lifecycle"></div>
+          <div class="atlas-panel" id="atlas-diagnostics"></div>
+        </div>
+      </div>
+    </section>
+    <section>
+      <div style="width:100%">
+        <div class="section-head reveal"><span class="eyebrow">08 · Responsibility matrix</span>
+          <h2>Where the UI Provider stops.</h2>
+          <p>A good provider is defined as much by what it refuses to own as by what it implements.</p>
+        </div>
+        <div class="matrix reveal">
+          <div class="matrix-row head">
+            <div>Concern</div>
+            <div>UI Provider</div>
+            <div>Neighboring authority</div>
+            <div>Boundary rule</div>
+          </div>
+          <div class="matrix-row">
+            <div>Reusable button</div>
+            <div>Owns component definition</div>
+            <div>—</div>
+            <div>UI is shared infrastructure.</div>
+          </div>
+          <div class="matrix-row">
+            <div>Action target</div>
+            <div>Owns target identity and resolution</div>
+            <div>Callback/domain code</div>
+            <div>UI chooses intent; domain code performs domain work.</div>
+          </div>
+          <div class="matrix-row">
+            <div>AJAX / HTTP</div>
+            <div>May originate an action</div>
+            <div>Request Manager</div>
+            <div>Do not duplicate request infrastructure.</div>
+          </div>
+          <div class="matrix-row">
+            <div>Database / product data</div>
+            <div>May invoke an action that needs data</div>
+            <div>Storage & Data Provider</div>
+            <div>Do not move data ownership into UI infrastructure.</div>
+          </div>
+          <div class="matrix-row">
+            <div>Ecosystem lifecycle</div>
+            <div>Consumes available ecosystem capability</div>
+            <div>Core Provider</div>
+            <div>Do not become the ecosystem bootstrapper.</div>
+          </div>
+          <div class="matrix-row">
+            <div>Action diagnostics</div>
+            <div>Owns UI-action diagnostics</div>
+            <div>Domain-specific diagnostics</div>
+            <div>Observe the action without owning every subsystem's logs.</div>
+          </div>
+        </div>
+        <div class="end-note reveal"><strong>The practical rule:</strong> the UI Provider may start an action, govern
+          its UI-originated lifecycle, and explain what happened. It should not silently absorb the responsibility of
+          the system that the action happens to call.</div>
+      </div>
+    </section>
+
+    <section>
+      <div style="width:100%">
+        <div class="section-head reveal"><span class="eyebrow">09 · Ecosystem usage</span>
+          <h2>The same infrastructure can serve very different components.</h2>
+          <p>The architecture becomes valuable when small plugins, large plugins, bundles and ecosystem-level products
+            can all use the same action vocabulary.</p>
+        </div>
+        <div class="scenario reveal">
+          <div class="scenario-icon">↗</div>
+          <div>
+            <h3>A small plugin</h3>
+            <p>A developer wants a standard button that invokes “refresh_table”. They should not rebuild event binding,
+              target lookup, lifecycle bookkeeping and diagnostics inside the plugin. The plugin consumes the shared
+              component and declares its target.</p>
+            <div class="quote">“I provide the intention; the provider provides the common invocation machinery.”</div>
+          </div>
+        </div>
+        <div style="height:16px"></div>
+        <div class="scenario reveal">
+          <div class="scenario-icon">◆</div>
+          <div>
+            <h3>A large plugin or bundle</h3>
+            <p>A more complex product can define many targets for different interface actions. Because target management
+              is centralized, the bundle can keep its feature code focused on domain behavior rather than repeating UI
+              plumbing for every screen.</p>
+            <div class="quote">“Many features can share one action model without sharing their business logic.”</div>
+          </div>
+        </div>
+        <div style="height:16px"></div>
+        <div class="scenario reveal">
+          <div class="scenario-icon">◎</div>
+          <div>
+            <h3>The wider ecosystem</h3>
+            <p>As more BonikPress components consume the provider, the action system becomes a common contract.
+              Developers can recognize the pattern across products even when the targets and downstream operations are
+              completely different.</p>
+            <div class="quote">“The ecosystem gains consistency without forcing every product into the same
+              implementation.”</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div style="width:100%">
+        <div class="section-head reveal"><span class="eyebrow">10 · Design contract</span>
+          <h2>What should a consuming developer experience?</h2>
+          <p>The best infrastructure is often visible through how little repetitive code it requires from the developer
+            using it.</p>
+        </div>
+        <div class="rule-board">
+          <article class="rule reveal"><b>Rule 01 · Declare intent</b>
+            <p>A UI component should identify the action target it wants to invoke instead of embedding the
+              implementation of that action.</p>
+          </article>
+          <article class="rule reveal"><b>Rule 02 · Reuse the mechanism</b>
+            <p>Click handling, target lookup, validation, lifecycle entry and diagnostics should be predefined
+              infrastructure rather than copied into every component.</p>
+          </article>
+          <article class="rule reveal"><b>Rule 03 · Keep targets stable</b>
+            <p>Target names should represent meaningful intentions and remain independent from temporary implementation
+              details such as a specific JavaScript function name.</p>
+          </article>
+          <article class="rule reveal"><b>Rule 04 · Fail clearly</b>
+            <p>If a developer requests a target that does not exist or cannot execute, the provider should produce a
+              clear diagnostic instead of a mysterious silent failure.</p>
+          </article>
+          <article class="rule reveal"><b>Rule 05 · Preserve ownership</b>
+            <p>When execution crosses into HTTP, data or ecosystem infrastructure, the provider should coordinate the
+              handoff rather than recreate those systems.</p>
+          </article>
+          <article class="rule reveal"><b>Rule 06 · Make state meaningful</b>
+            <p>Lifecycle states should communicate real action conditions and provide useful checkpoints for interfaces
+              and diagnostics.</p>
+          </article>
+          <article class="rule reveal"><b>Rule 07 · Prefer predictable contracts</b>
+            <p>A smaller, explicit contract is more valuable than a clever universal mechanism that becomes difficult to
+              understand or debug.</p>
+          </article>
+          <article class="rule reveal"><b>Rule 08 · Grow by pressure</b>
+            <p>New infrastructure should appear when real ecosystem requirements demand it, not because the provider
+              could theoretically support another abstraction.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div style="width:100%">
+        <div class="section-head reveal"><span class="eyebrow">11 · Implementation philosophy</span>
+          <h2>Start simple. Earn the complexity.</h2>
+          <p>The provider can begin as a compact reusable library and progressively gain stronger action infrastructure
+            as real use cases reveal the need.</p>
+        </div>
+        <div class="detail-grid">
+          <article class="detail-card reveal">
+            <h3>Stage A — shared UI vocabulary</h3>
+            <p>Establish component identifiers, rendering contracts and a consistent way to consume UI components. The
+              first objective is reuse, not a giant framework.</p>
+            <p>The ecosystem should quickly gain a reliable way to say “render this known component with these
+              specifications.”</p>
+          </article>
+          <article class="detail-card blue reveal">
+            <h3>Stage B — target vocabulary</h3>
+            <p>Introduce named action targets and the registration mechanism behind them. At this point, the provider
+              becomes more than a component library: it becomes a controlled bridge from interface intent to action
+              execution.</p>
+          </article>
+          <article class="detail-card purple reveal">
+            <h3>Stage C — lifecycle contract</h3>
+            <p>Add validation, initialization, state transitions, completion and failure handling. The objective is to
+              make every action behave according to the same broad lifecycle model.</p>
+          </article>
+          <article class="detail-card orange reveal">
+            <h3>Stage D — diagnostics</h3>
+            <p>Once the lifecycle exists, diagnostics have meaningful events to observe. Add tracing and reporting
+              around actual developer needs instead of building an abstract monitoring system first.</p>
+          </article>
+        </div>
+        <div class="end-note reveal"><strong>Guiding principle:</strong> architecture should make the common case simple
+          while keeping the uncommon case understandable. The provider should not require every consumer to understand
+          its internals merely to render a button.</div>
+      </div>
+    </section>
+
+    <section id="roadmap">
+      <div style="width:100%">
+        <div class="section-head reveal"><span class="eyebrow">07 · Work trajectory</span>
+          <h2>Build the concept before building the machinery.</h2>
+          <p>Build in stages: shared UI vocabulary, target contracts, lifecycle machinery, then diagnostics and
+            hardening. Complexity should be earned by real use cases.</p>
+        </div>
+        <div class="roadmap">
+          <article class="road reveal"><b>01 · FOUNDATION</b>
+            <h3>Component system</h3>
+            <p>Establish the reusable UI component language and its consumption pattern.</p>
+          </article>
+          <article class="road reveal"><b>02 · TARGET SYSTEM</b>
+            <h3>Target registry</h3>
+            <p>Define, register, resolve, validate and manage target availability.</p>
+          </article>
+          <article class="road reveal"><b>03 · LIFECYCLE ENGINE</b>
+            <h3>Action journey</h3>
+            <p>Introduce invocation, initialization, states, coordination and terminal outcomes.</p>
+          </article>
+          <article class="road reveal"><b>04 · DIAGNOSTICS HUB</b>
+            <h3>Visibility layer</h3>
+            <p>Observe, trace, record and report action behavior without owning unrelated logs.</p>
+          </article>
+          <article class="road reveal"><b>05 · ECOSYSTEM READY</b>
+            <h3>Harden the boundary</h3>
+            <p>Test real plugins, bundles and ecosystem components while protecting provider ownership.</p>
+          </article>
+        </div>
+        <div class="statbar reveal" style="margin-top:28px">
+          <div class="stat"><b>3</b><span>Major roles</span></div>
+          <div class="stat"><b>1</b><span>UI action model</span></div>
+          <div class="stat"><b>4</b><span>Clear authorities</span></div>
+          <div class="stat"><b>∞</b><span>Reusable targets</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="final reveal">
+        <span class="eyebrow">08 · Architectural conclusion</span>
+        <h2>A focused provider is easier to scale.</h2>
+        <p class="lead">BonikPress UI Provider should become the common language between reusable interfaces and
+          UI-originated actions. Components stay simple. Targets stay identifiable. Lifecycles stay controlled.
+          Diagnostics stay useful. Other providers keep ownership of their own domains.</p>
+        <p>In practical terms, this means a developer should be able to think in terms of “which reusable component do I
+          need?” and “which action target should this component invoke?” rather than “how do I rebuild the entire
+          interaction infrastructure for this screen?” The provider absorbs that repetition once, centrally and
+          consistently.</p>
+        <p>At the same time, the architecture remains disciplined: Core owns ecosystem lifecycle, Request Manager owns
+          HTTP and request concerns, Storage & Data owns data concerns, and UI Provider owns the interface and the
+          lifecycle of actions that begin from that interface.</p>
+        <div class="principles">
+          <span>Reusable by default</span><span>Declarative UI intent</span><span>Target-driven
+            actions</span><span>Lifecycle-aware</span><span>Diagnosable</span><span>No HTTP ownership</span><span>No
+            data ownership</span><span>No ecosystem lifecycle ownership</span>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer>BonikPress · UI Provider Architecture · Conceptual presentation</footer>
+
+  <script>
+    const revealObserver = new IntersectionObserver(entries => {
+      entries.forEach(e => {if (e.isIntersecting) e.target.classList.add('visible')})
+    }, {threshold: .12});
+    document.querySelectorAll('.reveal').forEach(e => revealObserver.observe(e));
+    document.querySelectorAll('[data-target]').forEach(b => b.addEventListener('click', () => {
+      const el = document.getElementById(b.dataset.target); if (el) el.scrollIntoView({behavior: 'smooth'});
+    }));
+    const progress = document.getElementById('progress');
+    const navButtons = [...document.querySelectorAll('.navlinks button')];
+    const sections = [...document.querySelectorAll('section[id]')];
+    window.addEventListener('scroll', () => {
+      const max = document.documentElement.scrollHeight - innerHeight;
+      progress.style.width = (max ? scrollY / max * 100 : 0) + '%';
+      let active = '';
+      sections.forEach(s => {if (scrollY >= s.offsetTop - 260) active = s.id});
+      navButtons.forEach(b => b.classList.toggle('active', b.dataset.target === active));
+    }, {passive: true});
+
+    const atlasData = {
+      targets: [
+        ["Target Definition", "Defines what an action target represents and what its contract means."],
+        ["Target Registration", "Adds a target to the provider so it can be discovered and invoked."],
+        ["Target Identification", "Gives each target a stable, unambiguous identifier."],
+        ["Target Resolution", "Maps a requested identifier to its registered action."],
+        ["Target Validation", "Checks whether the target and invocation are valid before execution."],
+        ["Target Availability", "Determines whether the target is currently usable."],
+        ["Target Configuration", "Stores controlled options that affect how a target is invoked."]
+      ],
+      lifecycle: [
+        ["Action Invocation", "Starts a UI-originated action through the predefined invocation path."],
+        ["Action Validation", "Performs the final action-level checks before execution begins."],
+        ["Action Initialization", "Creates the context and initial state required for the action."],
+        ["Action State Management", "Tracks valid action states and transitions during execution."],
+        ["Execution Coordination", "Coordinates the registered action without owning its downstream domain."],
+        ["Completion Management", "Handles successful terminal completion and its resulting state."],
+        ["Failure Management", "Captures failed execution and moves the action into a known failure state."],
+        ["Cancellation & Cleanup", "Stops eligible actions and releases action-specific state or resources."]
+      ],
+      diagnostics: [
+        ["Action Observation", "Watches important lifecycle events without changing their meaning."],
+        ["Action Logging", "Records useful action context for development and troubleshooting."],
+        ["Error Diagnostics", "Explains validation, resolution and execution failures."],
+        ["State Diagnostics", "Shows the state and transition history relevant to an action."],
+        ["Execution Tracing", "Connects target resolution, invocation and downstream boundaries."],
+        ["Diagnostic Reporting", "Presents the gathered information in a developer-usable form."]
+      ]
+    };
+    function renderAtlas(key) {
+      const el = document.getElementById("atlas-" + key);
+      if (!el || el.children.length) return;
+      atlasData[key].forEach((item, i) => {
+        const card = document.createElement("article");
+        card.className = "atlas-item open";
+        card.innerHTML = `<div class="num">SUB-ROLE ${String(i + 1).padStart(2, "0")}</div><h4>${item[0]}</h4><div class="more"><p>${item[1]}</p></div>`;
+        card.addEventListener("click", () => card.classList.toggle("open"));
+        el.appendChild(card);
+      });
+    }
+    document.querySelectorAll(".atlas-tab").forEach(tab => {
+      tab.addEventListener("click", () => {
+        document.querySelectorAll(".atlas-tab").forEach(t => t.classList.remove("active"));
+        document.querySelectorAll(".atlas-panel").forEach(p => p.classList.remove("active"));
+        tab.classList.add("active");
+        const key = tab.dataset.role;
+        renderAtlas(key);
+        document.getElementById("atlas-" + key).classList.add("active");
+      });
+    });
+    renderAtlas("targets");
+    renderAtlas("lifecycle");
+    renderAtlas("diagnostics");
+
+  </script>
+</body>
+
+</html>
