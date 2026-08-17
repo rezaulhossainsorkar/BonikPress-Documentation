@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>BonikPress — Storage & Data Provider</title>
+    <title>TajirKendro — Storage & Data Provider</title>
     <style>
         :root {
             --bp-green: #0B7A3B;
@@ -849,7 +849,7 @@
 <body>
     <div class="progress" id="progress"></div>
     <nav>
-        <div class="brand">BONIK<span>PRESS</span></div>
+        <div class="brand">Tajir<span>Kendro</span></div>
         <div class="navlinks">
             <a href="#identity">Identity</a><a href="#domains">Domains</a><a href="#roles">Roles</a><a href="#deep">Deep
                 Dive</a><a href="#boundaries">Boundaries</a><a href="#next">Next</a>
@@ -861,8 +861,8 @@
             <div>
                 <div class="eyebrow"><i class="dot"></i> Infrastructure Architecture</div>
                 <h1>Storage &amp; <em>Data</em> Provider</h1>
-                <p>A complete architectural model for how BonikPress manages WooCommerce product data and
-                    BonikPress-owned ecosystem data—without turning “data” into an architectural dumping ground.</p>
+                <p>A complete architectural model for how TajirKendro manages WooCommerce product data and
+                    TajirKendro-owned ecosystem data—without turning “data” into an architectural dumping ground.</p>
                 <div class="hero-actions"><a class="btn primary" href="#identity">Explore architecture</a><a class="btn"
                         href="#roles">View five roles</a></div>
             </div>
@@ -882,7 +882,7 @@
                 <div class="kicker">01 · Fundamental identity</div>
                 <h2>What this provider actually owns.</h2>
                 <p>The Storage &amp; Data Provider is infrastructure for controlled access, retrieval, creation,
-                    modification, deletion, organization, integrity, and lifecycle of supported BonikPress data.</p>
+                    modification, deletion, organization, integrity, and lifecycle of supported TajirKendro data.</p>
             </div>
             <div class="cards">
                 <div class="card reveal">
@@ -908,24 +908,24 @@
             <div class="section-head reveal">
                 <div class="kicker">02 · Two data domains</div>
                 <h2>Two domains. One provider. Different ownership semantics.</h2>
-                <p>The architecture deliberately distinguishes data BonikPress works with from data BonikPress itself
+                <p>The architecture deliberately distinguishes data TajirKendro works with from data TajirKendro itself
                     owns.</p>
             </div>
             <div class="domain">
                 <div class="card reveal">
                     <div class="icon">WC</div>
                     <h3>WooCommerce Product Data</h3>
-                    <p>The provider manages BonikPress’s controlled interaction with WooCommerce products:
+                    <p>The provider manages TajirKendro’s controlled interaction with WooCommerce products:
                         identification, initialization, validation, retrieval, creation, modification, deletion,
                         metadata, relationships, and operation verification.</p><span class="tag">WooCommerce is domain
                         authority</span><span class="tag">Provider manages access + operations</span>
                 </div>
                 <div class="card reveal">
                     <div class="icon">BP</div>
-                    <h3>BonikPress Ecosystem Data</h3>
-                    <p>The provider manages persistent data owned by the BonikPress ecosystem, including its
+                    <h3>TajirKendro Ecosystem Data</h3>
+                    <p>The provider manages persistent data owned by the TajirKendro ecosystem, including its
                         identification, initialization, validation, retrieval, creation, modification, deletion,
-                        structure, relationships, and verification.</p><span class="tag">BonikPress-owned
+                        structure, relationships, and verification.</p><span class="tag">TajirKendro-owned
                         data</span><span class="tag">Provider is infrastructure authority</span>
                 </div>
             </div>
@@ -944,12 +944,12 @@
                 <div class="card reveal">
                     <div class="num">01</div>
                     <h3>WooCommerce Product Data Management</h3>
-                    <p>Manages BonikPress’s controlled interaction with WooCommerce product data.</p>
+                    <p>Manages TajirKendro’s controlled interaction with WooCommerce product data.</p>
                 </div>
                 <div class="card reveal">
                     <div class="num">02</div>
-                    <h3>BonikPress Ecosystem Data Management</h3>
-                    <p>Manages data that belongs to and supports the BonikPress ecosystem itself.</p>
+                    <h3>TajirKendro Ecosystem Data Management</h3>
+                    <p>Manages data that belongs to and supports the TajirKendro ecosystem itself.</p>
                 </div>
                 <div class="card reveal">
                     <div class="num">03</div>
@@ -1036,7 +1036,7 @@
                         <div class="card">
                             <div class="num">MAJOR ROLE 01</div>
                             <h3>WooCommerce Product Data Management</h3>
-                            <p>Manages BonikPress’s controlled interaction with WooCommerce product data. WooCommerce
+                            <p>Manages TajirKendro’s controlled interaction with WooCommerce product data. WooCommerce
                                 remains the domain authority for product meaning; this provider supplies the
                                 infrastructure for operating on that data.</p>
                         </div>
@@ -1094,17 +1094,17 @@
                     <div class="detail-pane" id="r2">
                         <div class="card">
                             <div class="num">MAJOR ROLE 02</div>
-                            <h3>BonikPress Ecosystem Data Management</h3>
-                            <p>Manages data owned by and required by the BonikPress ecosystem itself. Here BonikPress
+                            <h3>TajirKendro Ecosystem Data Management</h3>
+                            <p>Manages data owned by and required by the TajirKendro ecosystem itself. Here TajirKendro
                                 can be the authority over the persistent data being managed.</p>
                         </div>
                         <div class="subrole">
                             <h4>Ecosystem Data Identification</h4>
-                            <p>Identifies the specific BonikPress-owned data involved in an operation.</p>
+                            <p>Identifies the specific TajirKendro-owned data involved in an operation.</p>
                         </div>
                         <div class="subrole">
                             <h4>Ecosystem Data Initialization</h4>
-                            <p>Establishes the required representation or initial state for BonikPress-owned data.</p>
+                            <p>Establishes the required representation or initial state for TajirKendro-owned data.</p>
                         </div>
                         <div class="subrole">
                             <h4>Ecosystem Data Validation</h4>
@@ -1112,29 +1112,29 @@
                         </div>
                         <div class="subrole">
                             <h4>Ecosystem Data Retrieval</h4>
-                            <p>Retrieves BonikPress-owned data through the appropriate data mechanisms.</p>
+                            <p>Retrieves TajirKendro-owned data through the appropriate data mechanisms.</p>
                         </div>
                         <div class="subrole">
                             <h4>Ecosystem Data Creation</h4>
-                            <p>Creates new persistent BonikPress data and establishes the information required for its
+                            <p>Creates new persistent TajirKendro data and establishes the information required for its
                                 creation.</p>
                         </div>
                         <div class="subrole">
                             <h4>Ecosystem Data Modification</h4>
-                            <p>Updates existing BonikPress-owned data while preserving its defined structural and
+                            <p>Updates existing TajirKendro-owned data while preserving its defined structural and
                                 operational rules.</p>
                         </div>
                         <div class="subrole">
                             <h4>Ecosystem Data Deletion</h4>
-                            <p>Removes BonikPress-owned data when the deletion is valid and appropriate.</p>
+                            <p>Removes TajirKendro-owned data when the deletion is valid and appropriate.</p>
                         </div>
                         <div class="subrole">
                             <h4>Ecosystem Data Structure Management</h4>
-                            <p>Manages the structural organization of BonikPress-owned data.</p>
+                            <p>Manages the structural organization of TajirKendro-owned data.</p>
                         </div>
                         <div class="subrole">
                             <h4>Ecosystem Data Relationship Management</h4>
-                            <p>Manages relationships between different pieces of BonikPress-owned data.</p>
+                            <p>Manages relationships between different pieces of TajirKendro-owned data.</p>
                         </div>
                         <div class="subrole">
                             <h4>Ecosystem Data Operation Verification</h4>
@@ -1386,7 +1386,7 @@
                 <div class="card good reveal">
                     <div class="num">OWNS</div>
                     <h3>Supported data infrastructure</h3>
-                    <p>Product data operations, BonikPress-owned data operations, data operation lifecycle,
+                    <p>Product data operations, TajirKendro-owned data operations, data operation lifecycle,
                         querying/retrieval, and integrity/lifecycle responsibilities.</p>
                 </div>
                 <div class="card avoid reveal">
@@ -1430,7 +1430,7 @@
                     </div>
 
                     <div class="arch-branch">
-                        <div class="arch-major">02 · BonikPress Ecosystem Data Management</div>
+                        <div class="arch-major">02 · TajirKendro Ecosystem Data Management</div>
                         <div class="arch-children">
                             <span>Ecosystem Data Identification</span><span>Ecosystem Data
                                 Initialization</span><span>Ecosystem Data Validation</span>
@@ -1526,7 +1526,7 @@
 
     <footer>
         <div class="wrap">
-            <div class="footer-title">BonikPress · Storage &amp; Data Provider</div>
+            <div class="footer-title">TajirKendro · Storage &amp; Data Provider</div>
             <p>A conceptual architecture designed around clear ownership, controlled data operations, and separation of
                 concerns.</p>
             <p style="font-size:12px;color:#8fa59a">Architectural status: current working model · Implementation

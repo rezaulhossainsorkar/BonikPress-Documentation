@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BonikPress Commerce Core — Architecture Presentation</title>
+<title>TajirKendro Commerce Core — Architecture Presentation</title>
 <style>
 :root {
   --bp-green: #0B7A3B;
@@ -204,7 +204,7 @@ h3{font-size:22px}
 <body>
 <div class="progress" id="progress"></div>
 <header class="topbar">
-  <a class="brand" href="#cover"><span class="brand-mark">BP</span><span>BonikPress Commerce Core</span></a>
+  <a class="brand" href="#cover"><span class="brand-mark">BP</span><span>TajirKendro Commerce Core</span></a>
   <nav class="nav">
     <a href="#architecture">Architecture</a><a href="#lifecycle">Lifecycle</a><a href="#registry">Registry</a>
     <a href="#dependency">Dependencies</a><a href="#providers">Providers</a><a href="#config">Configuration</a>
@@ -218,9 +218,9 @@ h3{font-size:22px}
 <section class="slide" id="cover">
  <div class="inner hero-grid">
   <div class="reveal">
-   <div class="kicker"><span class="dot"></span> BonikPress Commerce Architecture</div>
+   <div class="kicker"><span class="dot"></span> TajirKendro Commerce Architecture</div>
    <h1>The kernel that makes one Commerce ecosystem possible.</h1>
-   <p class="lead">A responsibility-driven architecture for discovering, registering, validating, coordinating, extending, and safely operating independent BonikPress Commerce products.</p>
+   <p class="lead">A responsibility-driven architecture for discovering, registering, validating, coordinating, extending, and safely operating independent TajirKendro Commerce products.</p>
    <div class="stat-row">
     <div class="stat"><strong>7</strong><span>Core responsibilities</span></div>
     <div class="stat"><strong>5</strong><span>Mandatory providers</span></div>
@@ -243,7 +243,7 @@ h3{font-size:22px}
  <div class="inner">
   <div class="section-head reveal">
    <div><div class="kicker"><span class="dot"></span> Platform Context</div><h2>One Commerce ecosystem. Many independent products.</h2></div>
-   <p>BonikPress is a platform architecture rather than a monolithic plugin. Independent packages can remain independently maintainable while Core makes them behave as one ecosystem.</p>
+   <p>TajirKendro is a platform architecture rather than a monolithic plugin. Independent packages can remain independently maintainable while Core makes them behave as one ecosystem.</p>
   </div>
   <div class="grid reveal">
    <div class="card"><div class="num">01 · BUNDLES</div><h3>Complete solution areas</h3><p>Bundles group substantial Large Plugins around a complete commerce business area. Bundles contain Large Plugins only.</p><span class="pill">Structural relationship</span></div>
@@ -260,10 +260,10 @@ h3{font-size:22px}
  <div class="inner">
   <div class="kicker reveal"><span class="dot"></span> The Core Model</div>
   <h2 class="reveal">Separate the software from the experience.</h2>
-  <p class="lead reveal">Many WordPress packages can exist underneath while BonikPress presents merchants with a unified Commerce experience. Core supplies the infrastructure that lets those independent packages participate safely.</p>
+  <p class="lead reveal">Many WordPress packages can exist underneath while TajirKendro presents merchants with a unified Commerce experience. Core supplies the infrastructure that lets those independent packages participate safely.</p>
   <div class="two reveal" style="margin-top:45px">
    <div class="code"><span class="g">wp-content/plugins/</span><br><br>
-    <span class="w">bonikpress-core/</span><br>
+    <span class="w">TajirKendro-core/</span><br>
     <span class="w">bulk-product-edit/</span><br>
     <span class="w">bulk-price-manager/</span><br>
     <span class="w">bulk-stock-manager/</span><br>
@@ -272,7 +272,7 @@ h3{font-size:22px}
    </div>
    <div>
     <div class="callout"><strong>Technical reality</strong><p>Each package remains independently maintainable, versionable, installable, and replaceable.</p></div>
-    <div class="callout"><strong>Customer-facing experience</strong><p>BonikPress can compose those capabilities into coherent products, sections, workflows, and navigation without mirroring the plugin folder structure.</p></div>
+    <div class="callout"><strong>Customer-facing experience</strong><p>TajirKendro can compose those capabilities into coherent products, sections, workflows, and navigation without mirroring the plugin folder structure.</p></div>
    </div>
   </div>
  </div><span class="slide-number">03 / 20</span>
@@ -352,7 +352,7 @@ h3{font-size:22px}
 
 <section class="slide" id="dependency">
  <div class="inner">
-  <div class="section-head reveal"><div><div class="kicker"><span class="dot"></span> 03 · Dependency & Compatibility</div><h2>Know whether things can work together.</h2></div><p>BonikPress treats dependencies broadly enough to express component, provider, capability, and platform requirements while retaining compatibility and conflict rules.</p></div>
+  <div class="section-head reveal"><div><div class="kicker"><span class="dot"></span> 03 · Dependency & Compatibility</div><h2>Know whether things can work together.</h2></div><p>TajirKendro treats dependencies broadly enough to express component, provider, capability, and platform requirements while retaining compatibility and conflict rules.</p></div>
   <div class="grid reveal">
    <div class="card"><div class="num">COMPONENT → COMPONENT</div><h3>First-class dependency</h3><p>Component A can explicitly require Component B to function correctly.</p><span class="pill">requires</span></div>
    <div class="card"><div class="num">COMPONENT → PROVIDER</div><h3>Specific infrastructure</h3><p>A component may require a particular provider when the identity of that provider matters.</p><span class="pill">specific</span></div>
@@ -610,7 +610,7 @@ h3{font-size:22px}
   <div class="kicker reveal"><span class="dot"></span> Final Architecture</div>
   <h2 class="reveal">The Core should make the ecosystem understandable, deterministic, extensible, and resilient.</h2>
   <div class="code reveal" style="margin-top:42px">
-   <span class="g">BONIKPRESS COMMERCE CORE</span><br>
+   <span class="g">TajirKendro COMMERCE CORE</span><br>
    │<br>
    ├── 01 Ecosystem Lifecycle<br>
    ├── 02 Component Registry<br>
@@ -622,14 +622,14 @@ h3{font-size:22px}
    <span class="m">                    ↓</span><br>
    <span class="w">Independent Commerce products become one coherent ecosystem.</span>
   </div>
-  <div class="callout reveal"><strong>Architectural north star</strong><p>BonikPress should be able to know what exists, what each thing requires, what each thing provides, what can coexist, what can extend what, what is ready, what is available, what has failed, and how the ecosystem should respond — without forcing every product to become a monolith.</p></div>
+  <div class="callout reveal"><strong>Architectural north star</strong><p>TajirKendro should be able to know what exists, what each thing requires, what each thing provides, what can coexist, what can extend what, what is ready, what is available, what has failed, and how the ecosystem should respond — without forcing every product to become a monolith.</p></div>
  </div><span class="slide-number">20 / 20</span>
 </section>
 
 </main>
 
 <footer class="footer">
-  <div class="brand" style="justify-content:center"><span class="brand-mark">BP</span><span>BonikPress Commerce Core</span></div>
+  <div class="brand" style="justify-content:center"><span class="brand-mark">BP</span><span>TajirKendro Commerce Core</span></div>
   <p>Architecture responsibility map · Commerce ecosystem · Seven foundational Core roles</p>
   <small style="color:#8B9891">Built as a self-contained presentation</small>
 </footer>

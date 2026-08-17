@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BonikPress — Plugin Ecosystem Architecture</title>
+<title>TajirKendroPress — Plugin Ecosystem Architecture</title>
 <style>
 :root {
   /* =========================================================
-     BONIKPRESS — ROOT COLOR PALETTE
+     TajirKendroPRESS — ROOT COLOR PALETTE
      ========================================================= */
 
   /* Primary Brand */
@@ -440,10 +440,10 @@ footer strong { color: white; }
 
 <header class="hero">
   <div class="container">
-    <span class="eyebrow">BonikPress Architecture</span>
+    <span class="eyebrow">TajirKendroPress Architecture</span>
     <h1>One ecosystem. Many plugins. One clean admin experience.</h1>
     <p>
-      BonikPress can be built from small, independent plugins while presenting
+      TajirKendroPress can be built from small, independent plugins while presenting
       them to store owners as coherent products and modules.
     </p>
   </div>
@@ -465,7 +465,7 @@ footer strong { color: white; }
     <div class="card architecture">
       <div class="arch-row">
         <div class="arch-box primary">
-          <h3>BonikPress Admin</h3>
+          <h3>TajirKendroPress Admin</h3>
           <p>Unified navigation and product experience.</p>
         </div>
         <div class="arrow">→</div>
@@ -495,7 +495,7 @@ footer strong { color: white; }
       <div class="section-label">What the customer sees</div>
       <h2>A clean WordPress admin menu</h2>
       <p>
-        Instead of 100 top-level plugin menus, BonikPress owns one top-level
+        Instead of 100 top-level plugin menus, TajirKendroPress owns one top-level
         navigation and organizes capabilities by product.
       </p>
     </div>
@@ -512,7 +512,7 @@ footer strong { color: white; }
         <div class="menu-item">Products</div>
 
         <div class="menu-group">
-          <div class="menu-label">BonikPress</div>
+          <div class="menu-label">TajirKendroPress</div>
 
           <div class="menu-item">Dashboard</div>
 
@@ -534,7 +534,7 @@ footer strong { color: white; }
 
       <section class="content">
         <div class="breadcrumb">
-          BonikPress / Commerce / Bulk Product Edit / Pricing
+          TajirKendroPress / Commerce / Bulk Product Edit / Pricing
         </div>
         <h3>Pricing</h3>
         <p class="content-subtitle">
@@ -608,7 +608,7 @@ footer strong { color: white; }
       <article class="flow-card">
         <div class="flow-number">4</div>
         <h3>Ecosystem</h3>
-        <p>Provides the complete BonikPress commerce platform.</p>
+        <p>Provides the complete TajirKendroPress commerce platform.</p>
       </article>
     </div>
   </div>
@@ -629,7 +629,7 @@ footer strong { color: white; }
         <header>Actual WordPress installation</header>
         <pre><span class="muted-code">wp-content/plugins/</span>
 
-<span class="highlight">bonikpress-core/</span>
+<span class="highlight">TajirKendropress-core/</span>
 bulk-product-edit/
 bulk-price-manager/
 bulk-stock-manager/
@@ -643,7 +643,7 @@ scheduled-pricing/
 
       <article class="code-card">
         <header>Customer-facing hierarchy</header>
-        <pre><span class="highlight">BonikPress</span>
+        <pre><span class="highlight">TajirKendroPress</span>
 └── Commerce
     └── Bulk Product Edit
         ├── Overview
@@ -666,7 +666,7 @@ the plugin folder structure.</span></pre>
       <h2>Plugins register capabilities, not top-level menus.</h2>
       <p>
         Instead of every plugin calling WordPress's top-level menu API,
-        BonikPress can provide a shared registration API.
+        TajirKendroPress can provide a shared registration API.
       </p>
     </div>
 
@@ -689,10 +689,10 @@ the plugin folder structure.</span></pre>
       </article>
 
       <article class="compare good">
-        <h3>BonikPress approach</h3>
+        <h3>TajirKendroPress approach</h3>
         <pre>function bpm_register_admin_page() {
 
-    bonikpress_register_admin_page(
+    TajirKendropress_register_admin_page(
         array(
             'product'   => 'bulk-product-edit',
             'section'   => 'pricing',
@@ -708,7 +708,7 @@ the plugin folder structure.</span></pre>
     </div>
 
     <div class="note" style="margin-top:18px;">
-      The <strong>BonikPress Admin API</strong> would be responsible for
+      The <strong>TajirKendroPress Admin API</strong> would be responsible for
       translating these registrations into WordPress <code>add_menu_page()</code>
       and <code>add_submenu_page()</code> calls. The individual plugin does
       not need to own the top-level navigation.
@@ -725,7 +725,7 @@ the plugin folder structure.</span></pre>
       </h2>
       <p style="max-width:760px; color:#c9dfd2;">
         Build the software as modular capabilities, compose those capabilities
-        into large products, and let BonikPress provide the unified experience.
+        into large products, and let TajirKendroPress provide the unified experience.
         This keeps the code maintainable without making the WordPress admin
         overwhelming.
       </p>
@@ -737,7 +737,7 @@ the plugin folder structure.</span></pre>
 
 <footer>
   <div class="container">
-    <strong>BonikPress</strong> — Modular commerce infrastructure with a unified admin experience.
+    <strong>TajirKendroPress</strong> — Modular commerce infrastructure with a unified admin experience.
   </div>
 </footer>
 

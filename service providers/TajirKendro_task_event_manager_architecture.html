@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BonikPress — Task & Event Manager</title>
+<title>TajirKendro — Task & Event Manager</title>
 <style>
 :root{
 --bp-green:#0B7A3B;--bp-green-light:#16A052;--bp-green-pale:#DFF6E8;--bp-green-soft:#E8F7ED;
@@ -51,7 +51,7 @@ section{padding:80px 6vw;max-width:1500px;margin:auto}.sectionHead{display:flex;
 <header class="top">
   <div class="navBrand" onclick="go('overview')">
     <div class="navMark">BP</div>
-    <div><strong>BONIKPRESS</strong><small>Task & Event Manager</small></div>
+    <div><strong>TajirKendro</strong><small>Task & Event Manager</small></div>
   </div>
   <nav class="mainNav">
     <button class="navItem active" data-go="overview">Overview</button>
@@ -214,14 +214,14 @@ section{padding:80px 6vw;max-width:1500px;margin:auto}.sectionHead{display:flex;
  <div class="quote reveal" style="margin-top:24px;background:rgba(255,255,255,.06);color:#DFF6E8;border-left-color:#16A052">The Task & Event Manager owns the lifecycle and infrastructure of Tasks and Events—not the domain operations performed through them.</div>
 </section>
 
-<footer class="footer"><div style="max-width:1000px"><div class="eyebrow">BONIKPRESS · ARCHITECTURAL DESIGN</div><h2 style="font-size:42px;line-height:1.05">Simple boundaries.<br>Composable infrastructure.</h2><p>This presentation represents the current provisional architectural model. The next phase is a systematic responsibility audit before conceptual infrastructure and implementation are finalized.</p></div></footer>
+<footer class="footer"><div style="max-width:1000px"><div class="eyebrow">TajirKendro · ARCHITECTURAL DESIGN</div><h2 style="font-size:42px;line-height:1.05">Simple boundaries.<br>Composable infrastructure.</h2><p>This presentation represents the current provisional architectural model. The next phase is a systematic responsibility audit before conceptual infrastructure and implementation are finalized.</p></div></footer>
 </main>
 </div>
 
 <script>
 const roles=[
 {name:"01 · TASK MANAGEMENT",desc:"The authority over Task definitions, identity, configuration and scheduling.",subs:[
-["Task Definition","Establishes what constitutes a valid BonikPress Task."],["Task Registration","Makes a Task known to the Task & Event Manager."],["Task Identification","Provides a stable identity for referring to a Task."],["Task Configuration","Manages configuration that defines how the Task should operate."],["Task Scheduling","Determines when the Task is intended to occur."],["Task Condition Definition","Defines what must be true before the Task can become eligible."],["Task Availability","Determines whether a registered Task is currently available."]]},
+["Task Definition","Establishes what constitutes a valid TajirKendro Task."],["Task Registration","Makes a Task known to the Task & Event Manager."],["Task Identification","Provides a stable identity for referring to a Task."],["Task Configuration","Manages configuration that defines how the Task should operate."],["Task Scheduling","Determines when the Task is intended to occur."],["Task Condition Definition","Defines what must be true before the Task can become eligible."],["Task Availability","Determines whether a registered Task is currently available."]]},
 {name:"02 · EVENT MANAGEMENT",desc:"The authority over ecosystem Events and their callback relationships.",subs:[
 ["Event Definition","Establishes what constitutes a valid ecosystem Event."],["Event Registration","Makes an Event known and available as an ecosystem hook point."],["Event Identification","Provides a stable identity for the Event."],["Event Configuration","Manages configuration associated with Event semantics."],["Event Callback Registration","Associates callbacks with an Event."],["Event Resolution","Resolves an occurrence to its event definition and responses."],["Event Availability","Determines whether an Event is currently usable."]]},
 {name:"03 · TASK & EVENT EXECUTION",desc:"The runtime authority that turns eligibility and occurrences into actual activity.",subs:[

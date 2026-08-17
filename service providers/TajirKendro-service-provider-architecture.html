@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BonikPress — Service Provider Architecture</title>
+<title>TajirKendro — Service Provider Architecture</title>
 <style>
 :root{
   --bp-green:#0B7A3B;--bp-green-light:#16A052;--bp-green-pale:#DFF6E8;--bp-green-soft:#E8F7ED;
@@ -72,14 +72,14 @@ footer{padding:50px 0 80px;text-align:center;color:var(--bp-text-light);font-siz
 <section class="slide hero" id="vision">
 <div class="container hero-grid">
 <div class="reveal">
-<span class="badge">BonikPress Service Providers · 2026</span>
+<span class="badge">TajirKendro Service Providers · 2026</span>
 <h1>Build once.<br><span style="color:var(--bp-green)">Reuse everywhere.</span></h1>
 <p class="lead">A service-provider architecture for a family of focused B2B WordPress and WooCommerce plugins — sharing infrastructure without sharing business logic.</p>
 <div style="margin-top:28px"><span class="pill">Modular</span><span class="pill">Reusable</span><span class="pill">Decoupled</span><span class="pill">Scalable</span></div>
 </div>
 <div class="hero-visual reveal">
 <div class="orbit"></div>
-<div class="core"><div><small>BONIKPRESS</small><br><strong>Core<br>Services</strong></div></div>
+<div class="core"><div><small>TajirKendro</small><br><strong>Core<br>Services</strong></div></div>
 <div class="node n1">Storage & Data</div><div class="node n2">Requests & AJAX</div><div class="node n3">Shared UI</div><div class="node n4">Tasks & Events</div>
 </div>
 </div>
@@ -87,7 +87,7 @@ footer{padding:50px 0 80px;text-align:center;color:var(--bp-text-light);font-siz
 
 <section class="slide" id="problem">
 <div class="container">
-<div class="reveal"><span class="kicker">01 · The problem</span><h2>Don't rebuild the same engine in every plugin.</h2><p class="lead">BonikPress is intended to grow into an ecosystem of specialized commerce tools. The infrastructure underneath those tools should not be duplicated dozens of times.</p></div>
+<div class="reveal"><span class="kicker">01 · The problem</span><h2>Don't rebuild the same engine in every plugin.</h2><p class="lead">TajirKendro is intended to grow into an ecosystem of specialized commerce tools. The infrastructure underneath those tools should not be duplicated dozens of times.</p></div>
 <div class="grid" style="margin-top:40px">
 <div class="card reveal"><div class="num">DUPLICATION</div><h3>Same code, different plugin</h3><p>Product Price, SKU, Stock, Category and Order tools can all need similar retrieval, AJAX, tables and validation.</p></div>
 <div class="card reveal"><div class="num">DRIFT</div><h3>Every copy evolves differently</h3><p>When shared code is copied, bug fixes, security improvements and performance optimizations must be repeated.</p></div>
@@ -101,7 +101,7 @@ footer{padding:50px 0 80px;text-align:center;color:var(--bp-text-light);font-siz
 <div class="container">
 <div class="reveal"><span class="kicker">02 · Architecture</span><h2>Providers below. Business plugins above.</h2><p class="lead">The service layer owns common infrastructure. Specialized plugins own domain-specific behavior.</p></div>
 <div class="arch reveal" style="margin-top:38px">
-<div class="layer"><strong>BonikPress Core Manager</strong><span>Ecosystem foundation · registration · dependencies · compatibility · capabilities</span></div>
+<div class="layer"><strong>TajirKendro Core Manager</strong><span>Ecosystem foundation · registration · dependencies · compatibility · capabilities</span></div>
 <div class="arrow">↓</div>
 <div class="layer"><strong>Shared Service Provider Layer</strong><span>Data Manager · Request Manager · UI Manager · Task & Event Manager</span></div>
 <div class="arrow">↓</div>
@@ -174,7 +174,7 @@ footer{padding:50px 0 80px;text-align:center;color:var(--bp-text-light);font-siz
 <div class="card reveal"><div class="num">PHASE 02</div><h3>Request + UI</h3><p>Centralize AJAX, validation and the reusable admin table/filter experience.</p></div>
 <div class="card reveal"><div class="num">PHASE 03</div><h3>Task + Event</h3><p>Add safe background processing and decoupled communication for large operations and integrations.</p></div>
 <div class="card reveal"><div class="num">PHASE 04</div><h3>Specialized expansion</h3><p>Build SKU, Stock, Category, Order, Shipping and Promotion tools on the shared foundation.</p></div>
-<div class="card reveal"><div class="num">PHASE 05</div><h3>Connection Manager</h3><p>Turn the growing family into selectable bundles, suites and a complete BonikPress ecosystem toolkit.</p></div>
+<div class="card reveal"><div class="num">PHASE 05</div><h3>Connection Manager</h3><p>Turn the growing family into selectable bundles, suites and a complete TajirKendro ecosystem toolkit.</p></div>
 <div class="card reveal" style="background:var(--bp-green-soft)"><div class="num">SUCCESS CRITERION</div><h3>New plugins should feel cheap to build.</h3><p>If every new plugin keeps recreating infrastructure, the provider architecture is not doing its job.</p></div>
 </div>
 </div>
@@ -185,7 +185,7 @@ footer{padding:50px 0 80px;text-align:center;color:var(--bp-text-light);font-siz
 <div class="arch reveal">
 <div class="kicker" style="color:#8ce2ae">FINAL SUMMARY</div>
 <h2 style="color:white;margin-top:18px">One ecosystem.<br>Five foundations.<br>Many focused tools.</h2>
-<p style="color:rgba(255,255,255,.72);max-width:760px">BonikPress can grow from individual commerce utilities into a coherent B2B platform by centralizing infrastructure while preserving business logic inside focused plugins.</p>
+<p style="color:rgba(255,255,255,.72);max-width:760px">TajirKendro can grow from individual commerce utilities into a coherent B2B platform by centralizing infrastructure while preserving business logic inside focused plugins.</p>
 <div class="grid" style="margin-top:30px">
 <div class="layer"><strong>Core Manager</strong><span>Foundation</span></div>
 <div class="layer"><strong>Data Manager</strong><span>Data</span></div>
@@ -198,7 +198,7 @@ footer{padding:50px 0 80px;text-align:center;color:var(--bp-text-light);font-siz
 </div>
 </section>
 
-<footer>BonikPress · Service Provider Architecture · Designed as an evolving technical blueprint</footer>
+<footer>TajirKendro · Service Provider Architecture · Designed as an evolving technical blueprint</footer>
 
 <script>
 const progress=document.querySelector('.progress');
