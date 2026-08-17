@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BonikPress — Task & Event Manager</title>
+<style>
+:root{
+--bp-green:#0B7A3B;--bp-green-light:#16A052;--bp-green-pale:#DFF6E8;--bp-green-soft:#E8F7ED;
+--bp-deep:#063C25;--bp-deep-2:#073B25;--bp-text:#13231B;--bp-text-muted:#66766D;--bp-text-light:#8B9891;
+--bp-white:#FFFFFF;--bp-background:#FBFEFC;--bp-background-soft:#F6FAF7;--bp-background-green:#F1F9F3;
+--bp-border:#E2EBE5;--bp-border-green:#C9E5D2;
+--bp-shadow:0 18px 55px rgba(7,75,40,.09);--bp-shadow-hover:0 25px 65px rgba(7,75,40,.13);
+--bp-radius-sm:10px;--bp-radius-md:16px;--bp-radius-lg:21px;--bp-radius-xl:24px;--bp-radius-xxl:28px;
+}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bp-background);color:var(--bp-text);font:15px/1.65 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow-x:hidden}
+button{font:inherit}.shell{display:flex;min-height:100vh}.side{position:fixed;z-index:20;inset:0 auto 0 0;width:272px;background:var(--bp-deep);color:white;padding:24px 16px;display:flex;flex-direction:column;box-shadow:12px 0 45px rgba(6,60,37,.12)}
+.logo{display:flex;align-items:center;gap:12px;padding:8px 10px 28px;font-weight:850;font-size:18px}.logoMark{width:38px;height:38px;border-radius:13px;background:var(--bp-green-light);display:grid;place-items:center;box-shadow:0 10px 30px rgba(22,160,82,.3)}
+.nav{display:grid;gap:7px}.nav button{border:1px solid transparent;background:transparent;color:#DFF6E8;text-align:left;padding:11px 13px;border-radius:12px;cursor:pointer;transition:.25s}.nav button:hover,.nav button.active{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.08);color:#fff;transform:translateX(3px)}
+.sideFooter{margin-top:auto;color:#8B9891;font-size:12px;padding:14px}.main{width:100%}.top{position:sticky;top:0;z-index:15;background:rgba(251,254,252,.84);backdrop-filter:blur(16px);border-bottom:1px solid var(--bp-border);padding:14px 34px;display:flex;align-items:center;justify-content:space-between}.crumb{font-size:12px;color:var(--bp-text-muted);letter-spacing:.08em;text-transform:uppercase}.controls{display:flex;gap:8px}.pill{border:1px solid var(--bp-border);background:white;color:var(--bp-text);padding:8px 12px;border-radius:999px;cursor:pointer}.hero{min-height:680px;padding:90px 6vw 70px;position:relative;overflow:hidden;background:radial-gradient(circle at 80% 20%,var(--bp-green-soft),transparent 34%),linear-gradient(180deg,#fff,var(--bp-background-green))}
+.heroGrid{display:grid;grid-template-columns:1.1fr .9fr;gap:50px;align-items:center;max-width:1350px;margin:auto}.eyebrow{display:inline-flex;gap:8px;align-items:center;background:var(--bp-green-pale);color:var(--bp-deep);padding:8px 12px;border-radius:999px;font-weight:800;font-size:11px;letter-spacing:.1em;text-transform:uppercase}.dot{width:7px;height:7px;background:var(--bp-green-light);border-radius:50%;box-shadow:0 0 0 6px rgba(22,160,82,.12)}h1{font-size:clamp(44px,6vw,88px);line-height:.98;letter-spacing:-.055em;margin:22px 0;color:var(--bp-deep)}h1 span{color:var(--bp-green)}.hero p{font-size:18px;color:var(--bp-text-muted);max-width:720px}.heroActions{display:flex;gap:10px;flex-wrap:wrap;margin-top:28px}.primary{background:var(--bp-green);color:white;border:0;padding:12px 18px;border-radius:13px;font-weight:800;cursor:pointer;box-shadow:var(--bp-shadow)}.secondary{background:white;border:1px solid var(--bp-border-green);color:var(--bp-deep);padding:12px 18px;border-radius:13px;font-weight:800;cursor:pointer}
+.orbit{height:470px;position:relative;display:grid;place-items:center}.orbCore{width:145px;height:145px;border-radius:50%;background:var(--bp-deep);color:white;display:grid;place-items:center;text-align:center;font-weight:900;box-shadow:0 25px 70px rgba(6,60,37,.24);z-index:3}.ring{position:absolute;border:1px solid var(--bp-border-green);border-radius:50%;animation:spin 18s linear infinite}.r1{width:260px;height:260px}.r2{width:390px;height:390px;animation-duration:26s;animation-direction:reverse}.node{position:absolute;background:white;border:1px solid var(--bp-border);box-shadow:var(--bp-shadow);padding:10px 13px;border-radius:14px;font-weight:800;font-size:12px}.n1{top:35px;left:12%}.n2{right:3%;top:30%}.n3{bottom:35px;right:20%}.n4{left:3%;bottom:25%}.pulse{animation:pulse 2.5s ease-in-out infinite}@keyframes spin{to{transform:rotate(360deg)}}@keyframes pulse{50%{transform:scale(1.06)}}@keyframes float{50%{transform:translateY(-9px)}}
+section{padding:80px 6vw;max-width:1500px;margin:auto}.sectionHead{display:flex;align-items:end;justify-content:space-between;gap:25px;margin-bottom:32px}.sectionHead h2{font-size:42px;letter-spacing:-.04em;line-height:1.05;margin:0;color:var(--bp-deep)}.sectionHead p{max-width:620px;color:var(--bp-text-muted);margin:0}.grid{display:grid;gap:16px}.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}.g5{grid-template-columns:repeat(5,minmax(0,1fr))}.card{background:var(--bp-white);border:1px solid var(--bp-border);border-radius:var(--bp-radius-xl);padding:22px;box-shadow:var(--bp-shadow);transition:.3s;position:relative;overflow:hidden}.card:hover{transform:translateY(-5px);box-shadow:var(--bp-shadow-hover);border-color:var(--bp-border-green)}.card h3{margin:8px 0 6px;font-size:18px}.card p{margin:0;color:var(--bp-text-muted)}.num{font-size:11px;font-weight:900;color:var(--bp-green);letter-spacing:.12em}.icon{width:44px;height:44px;border-radius:14px;background:var(--bp-green-pale);display:grid;place-items:center;color:var(--bp-green);font-weight:900}.stat{font-size:32px;font-weight:900;color:var(--bp-deep)}.tag{display:inline-block;background:var(--bp-background-green);border:1px solid var(--bp-border-green);padding:4px 8px;border-radius:999px;font-size:11px;margin:4px 4px 0 0;color:var(--bp-deep);font-weight:750}
+.dark{background:var(--bp-deep);color:white;max-width:none}.dark .sectionHead h2{color:white}.dark .sectionHead p,.dark .card p{color:#B9CBC1}.dark .card{background:rgba(255,255,255,.055);border-color:rgba(255,255,255,.1);box-shadow:none}.dark .num{color:#7BE0A7}.dark .tag{background:rgba(255,255,255,.07);color:#DFF6E8;border-color:rgba(255,255,255,.1)}
+.roleTabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}.tab{border:1px solid var(--bp-border);background:white;padding:10px 14px;border-radius:999px;cursor:pointer;font-weight:800;color:var(--bp-text-muted)}.tab.active{background:var(--bp-green);color:white;border-color:var(--bp-green)}.rolePanel{display:none}.rolePanel.active{display:block}.roleTop{display:grid;grid-template-columns:.75fr 1.25fr;gap:18px}.roleHero{background:linear-gradient(135deg,var(--bp-deep),var(--bp-green));color:white;border-radius:var(--bp-radius-xxl);padding:32px;min-height:260px;position:relative;overflow:hidden}.roleHero:after{content:"";position:absolute;width:220px;height:220px;border:1px solid rgba(255,255,255,.18);border-radius:50%;right:-50px;bottom:-90px}.roleHero h3{font-size:34px;line-height:1.05;margin:15px 0}.roleHero p{color:#DFF6E8}.subgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.subcard{padding:18px;border:1px solid var(--bp-border);border-radius:18px;background:white}.subcard b{display:block;margin-bottom:5px}.subcard span{font-size:13px;color:var(--bp-text-muted)}
+.flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.flowNode{padding:15px 18px;background:white;border:1px solid var(--bp-border);border-radius:16px;box-shadow:var(--bp-shadow);font-weight:850}.arrow{color:var(--bp-green);font-weight:900;font-size:20px}.matrix{display:grid;grid-template-columns:1.1fr repeat(5,1fr);border:1px solid var(--bp-border);border-radius:20px;overflow:hidden;background:white}.matrix>div{padding:14px;border-right:1px solid var(--bp-border);border-bottom:1px solid var(--bp-border);font-size:12px}.matrix .head{background:var(--bp-background-green);font-weight:900;color:var(--bp-deep)}.yes{color:var(--bp-green);font-weight:900}.no{color:var(--bp-text-light)}
+.timeline{position:relative;padding-left:30px}.timeline:before{content:"";position:absolute;left:8px;top:0;bottom:0;width:2px;background:var(--bp-border-green)}.step{position:relative;margin:0 0 18px;background:white;border:1px solid var(--bp-border);padding:18px;border-radius:18px;box-shadow:var(--bp-shadow)}.step:before{content:"";position:absolute;left:-28px;top:22px;width:12px;height:12px;border-radius:50%;background:var(--bp-green-light);box-shadow:0 0 0 5px var(--bp-green-pale)}
+.graph{height:470px;background:white;border:1px solid var(--bp-border);border-radius:24px;position:relative;overflow:hidden;box-shadow:var(--bp-shadow)}.graph .gline{position:absolute;background:var(--bp-border-green);height:2px;transform-origin:left center}.gbox{position:absolute;background:white;border:1px solid var(--bp-border-green);box-shadow:var(--bp-shadow);padding:13px 15px;border-radius:15px;font-weight:850;z-index:2}.gbox small{display:block;color:var(--bp-text-muted);font-weight:500;margin-top:2px}.legend{display:flex;gap:15px;flex-wrap:wrap;margin-top:15px;color:var(--bp-text-muted);font-size:12px}.legend i{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--bp-green);margin-right:5px}
+.accordion{display:grid;gap:10px}.acc{border:1px solid var(--bp-border);border-radius:16px;background:white;overflow:hidden}.acc button{width:100%;border:0;background:white;padding:17px;text-align:left;font-weight:850;cursor:pointer;display:flex;justify-content:space-between}.acc .body{display:none;padding:0 17px 17px;color:var(--bp-text-muted)}.acc.open .body{display:block}.acc.open button{color:var(--bp-green)}
+.footer{padding:60px 6vw;background:var(--bp-deep);color:white}.footer p{color:#B9CBC1}.quote{font-size:30px;line-height:1.2;color:var(--bp-deep);font-weight:850;padding:35px;border-left:5px solid var(--bp-green);background:var(--bp-green-soft);border-radius:0 22px 22px 0}
+.reveal{opacity:0;transform:translateY(20px);transition:.7s}.reveal.show{opacity:1;transform:none}.search{border:1px solid var(--bp-border);padding:10px 13px;border-radius:999px;width:230px;background:white;outline:none}
+
+.runtimeCard{color:var(--bp-text)}.runtimeCard h3{color:var(--bp-deep);margin-bottom:20px}.dark .runtimeCard{color:#F5FBF7}.dark .runtimeCard h3{color:#FFFFFF}.runtimeCard .step span{display:inline-block;color:var(--bp-text-muted);line-height:1.55}.dark .runtimeCard .step span{color:#C9D9D0}.runtimeCard .step{min-height:76px}
+.navBrand{display:flex;align-items:center;gap:11px;cursor:pointer;min-width:205px}.navBrand strong{display:block;color:var(--bp-deep);font-size:14px;letter-spacing:.05em}.navBrand small{display:block;color:var(--bp-text-muted);font-size:10px;margin-top:1px}.navMark{width:38px;height:38px;border-radius:12px;background:var(--bp-green);color:white;display:grid;place-items:center;font-weight:900;box-shadow:0 8px 24px rgba(11,122,59,.2)}
+.mainNav{display:flex;align-items:center;gap:3px;justify-content:center;flex:1}.navItem{border:1px solid transparent;background:transparent;color:var(--bp-text-muted);padding:9px 10px;border-radius:10px;cursor:pointer;font-size:12px;font-weight:800;white-space:nowrap;transition:.2s}.navItem:hover{background:var(--bp-green-soft);color:var(--bp-green)}.navItem.active{background:var(--bp-green-pale);color:var(--bp-deep);border-color:var(--bp-border-green)}
+.navTools{display:flex;align-items:center;gap:7px}.menuBtn{display:none;border:1px solid var(--bp-border);background:white;padding:8px 11px;border-radius:10px;cursor:pointer}.mobileMenu{display:none}
+.dark .step{background:rgba(255,255,255,.075);border-color:rgba(255,255,255,.13);color:#F5FBF7}.dark .step b{color:#FFFFFF}.dark .step span{color:#C9D9D0}
+.dark .timeline:before{background:rgba(201,229,210,.3)}.dark .step:before{background:#16A052;box-shadow:0 0 0 5px rgba(22,160,82,.18)}
+.badge{position:absolute;right:15px;top:15px;font-size:10px;font-weight:900;color:var(--bp-green);background:var(--bp-green-pale);padding:5px 8px;border-radius:999px}
+@media(max-width:1000px){.side{width:78px}.side .logo span,.sideFooter,.nav button span{display:none}.main{margin-left:78px;width:calc(100% - 78px)}.nav button{text-align:center}.heroGrid,.roleTop{grid-template-columns:1fr}.g5{grid-template-columns:repeat(2,1fr)}.matrix{overflow:auto}.sectionHead{display:block}.sectionHead p{margin-top:12px}}
+@media(max-width:650px){.top{padding:10px 16px}
+.runtimeCard{color:var(--bp-text)}.runtimeCard h3{color:var(--bp-deep);margin-bottom:20px}.dark .runtimeCard{color:#F5FBF7}.dark .runtimeCard h3{color:#FFFFFF}.runtimeCard .step span{display:inline-block;color:var(--bp-text-muted);line-height:1.55}.dark .runtimeCard .step span{color:#C9D9D0}.runtimeCard .step{min-height:76px}
+.navBrand{min-width:0}.navBrand small{display:none}.hero,section{padding:55px 20px}.g2,.g3,.subgrid{grid-template-columns:1fr}.hero h1{font-size:48px}.orbit{transform:scale(.78);margin:-40px 0}.search{display:none}}
+</style>
+</head>
+<body>
+<div class="shell">
+
+
+<main class="main">
+<header class="top">
+  <div class="navBrand" onclick="go('overview')">
+    <div class="navMark">BP</div>
+    <div><strong>BONIKPRESS</strong><small>Task & Event Manager</small></div>
+  </div>
+  <nav class="mainNav">
+    <button class="navItem active" data-go="overview">Overview</button>
+    <button class="navItem" data-go="concepts">Concepts</button>
+    <button class="navItem" data-go="roles">Five Roles</button>
+    <button class="navItem" data-go="subroles">Sub-roles</button>
+    <button class="navItem" data-go="relationships">Relationships</button>
+    <button class="navItem" data-go="runtime">Runtime</button>
+    <button class="navItem" data-go="boundaries">Boundaries</button>
+    <button class="navItem" data-go="audit">Audit</button>
+  </nav>
+  <div class="navTools">
+    <button class="menuBtn" id="menuBtn"></button>
+  </div>
+</header>
+<div class="mobileMenu" id="mobileMenu">
+  <button data-go="overview">Overview</button><button data-go="concepts">Concepts</button>
+  <button data-go="roles">Five Roles</button><button data-go="subroles">Sub-roles</button>
+  <button data-go="relationships">Relationships</button><button data-go="runtime">Runtime</button>
+  <button data-go="boundaries">Boundaries</button><button data-go="audit">Architecture Audit</button>
+</div>
+
+<section class="hero" id="overview">
+ <div class="heroGrid">
+  <div class="reveal">
+   <div class="eyebrow"><i class="dot"></i> Final Provider · Architecture</div>
+   <h1>Managed work.<br><span>Ecosystem events.</span></h1>
+   <p>The Task & Event Manager is the authority for scheduled and condition-driven work and ecosystem-level occurrences—while preserving the ownership boundaries of Core, Request Manager, Storage & Data, and UI Provider.</p>
+   <div class="heroActions"><button class="primary" onclick="go('roles')">Explore five roles</button><button class="secondary" onclick="go('runtime')">See runtime trajectory</button></div>
+  </div>
+  <div class="orbit reveal">
+   <div class="ring r2"></div><div class="ring r1"></div>
+   <div class="orbCore pulse">TASK &<br>EVENT<br>MANAGER</div>
+   <div class="node n1">TASK<br><small>scheduled work</small></div>
+   <div class="node n2">EVENT<br><small>ecosystem occurrence</small></div>
+   <div class="node n3">LIFECYCLE<br><small>state progression</small></div>
+   <div class="node n4">DIAGNOSTICS<br><small>visibility</small></div>
+  </div>
+ </div>
+</section>
+
+<section id="concepts">
+ <div class="sectionHead reveal"><div><div class="num">01 / FOUNDATION</div><h2>Seven concepts.<br>One boundary.</h2></div><p>The architecture becomes clearer when similar-looking words are separated by what they actually represent.</p></div>
+ <div class="grid g3">
+  <div class="card reveal"><div class="icon">T</div><h3>Task</h3><p>Scheduled work that becomes eligible when its required configuration and conditions are satisfied.</p><span class="tag">managed work</span><span class="tag">scheduled</span></div>
+  <div class="card reveal"><div class="icon">E</div><h3>Event</h3><p>An ecosystem-level occurrence represented through a defined hook/callback mechanism.</p><span class="tag">occurrence</span><span class="tag">callback</span></div>
+  <div class="card reveal"><div class="icon">A</div><h3>Action</h3><p>An intention to cause an operation, especially an action originating through reusable UI.</p><span class="tag">intent</span><span class="tag">UI-originated</span></div>
+  <div class="card reveal"><div class="icon">R</div><h3>Request</h3><p>Communication across a request boundary. The Request Manager owns HTTP, AJAX, GET and POST concerns.</p><span class="tag">communication</span></div>
+  <div class="card reveal"><div class="icon">D</div><h3>Data Operation</h3><p>An operation involving retrieval, creation, update, deletion, querying, persistence or synchronization of data.</p><span class="tag">data authority</span></div>
+  <div class="card reveal"><div class="icon">C</div><h3>Ecosystem Lifecycle</h3><p>Provider and ecosystem existence, registration, availability, dependencies and compatibility—Core territory.</p><span class="tag">Core</span></div>
+ </div>
+ <div class="quote reveal" style="margin-top:22px">Coordination does not transfer ownership. A Task may use a Request or Data operation without becoming the owner of either.</div>
+</section>
+
+<section class="dark" id="roles">
+ <div class="sectionHead reveal"><div><div class="num">02 / THE FIVE AUTHORITIES</div><h2>Five roles.<br>One focused provider.</h2></div><p>Management defines. Execution activates. Lifecycle tracks. Diagnostics explains.</p></div>
+ <div class="grid g5">
+  <div class="card reveal"><div class="num">01</div><div class="stat">TASK</div><h3>Task Management</h3><p>Defines, registers, identifies, configures and schedules managed work.</p></div>
+  <div class="card reveal"><div class="num">02</div><div class="stat">EVENT</div><h3>Event Management</h3><p>Defines ecosystem events and manages their callback relationships.</p></div>
+  <div class="card reveal"><div class="num">03</div><div class="stat">RUN</div><h3>Execution</h3><p>Turns eligibility and occurrences into actual runtime activity.</p></div>
+  <div class="card reveal"><div class="num">04</div><div class="stat">STATE</div><h3>Lifecycle</h3><p>Manages state progression, completion, failure, cancellation and cleanup.</p></div>
+  <div class="card reveal"><div class="num">05</div><div class="stat">TRACE</div><h3>Diagnostics</h3><p>Observes, logs, diagnoses and traces what happened and why.</p></div>
+ </div>
+</section>
+
+<section id="subroles">
+ <div class="sectionHead reveal"><div><div class="num">03 / RESPONSIBILITY MAP</div><h2>Every role,<br>opened up.</h2></div><p>Use the tabs to inspect the complete provisional sub-role map.</p></div>
+ <div class="roleTabs" id="roleTabs"></div>
+ <div id="rolePanels"></div>
+</section>
+
+<section id="relationships">
+ <div class="sectionHead reveal"><div><div class="num">04 / OWNERSHIP</div><h2>Shared ecosystem.<br>Separate authority.</h2></div><p>Similar mechanisms can exist across providers because the thing being managed is different.</p></div>
+ <div class="matrix reveal">
+  <div class="head">Concern</div><div class="head">Core</div><div class="head">Request</div><div class="head">Storage</div><div class="head">UI</div><div class="head">Task/Event</div>
+  <div>Registration</div><div class="yes">Provider</div><div>—</div><div>—</div><div>Action Target</div><div class="yes">Task/Event</div>
+  <div>Validation</div><div class="yes">Ecosystem</div><div class="yes">Request</div><div class="yes">Data</div><div class="yes">Action</div><div class="yes">Task/Event</div>
+  <div>State</div><div class="yes">Ecosystem</div><div class="yes">Request</div><div class="yes">Data</div><div class="yes">Action</div><div class="yes">Task/Event</div>
+  <div>Diagnostics</div><div class="yes">Ecosystem</div><div class="yes">Request</div><div class="yes">Data</div><div class="yes">Action</div><div class="yes">Task/Event</div>
+  <div>HTTP/AJAX</div><div class="no">—</div><div class="yes">Authority</div><div class="no">—</div><div class="no">—</div><div class="no">Delegates</div>
+  <div>Data persistence</div><div class="no">—</div><div class="no">—</div><div class="yes">Authority</div><div class="no">—</div><div class="no">Delegates</div>
+  <div>UI actions</div><div class="no">—</div><div class="no">—</div><div class="no">—</div><div class="yes">Authority</div><div class="no">May receive</div>
+  <div>Task scheduling</div><div class="no">—</div><div class="no">—</div><div class="no">—</div><div class="no">—</div><div class="yes">Authority</div>
+  <div>Event callbacks</div><div class="no">—</div><div class="no">—</div><div class="no">—</div><div class="no">—</div><div class="yes">Authority</div>
+ </div>
+</section>
+
+<section class="dark" id="runtime">
+ <div class="sectionHead reveal"><div><div class="num">05 / RUNTIME</div><h2>From definition<br>to occurrence.</h2></div><p>A task is reusable. An execution is one particular occurrence of that task.</p></div>
+ <div class="grid g2">
+  <div class="card reveal runtimeCard"><h3>Task trajectory</h3><div class="timeline">
+   <div class="step"><b>01 · Define</b><br><span>Establish the task's identity and expected structure.</span></div>
+   <div class="step"><b>02 · Register</b><br><span>Make the task known to the provider.</span></div>
+   <div class="step"><b>03 · Configure + schedule</b><br><span>Set the schedule, configuration and required conditions.</span></div>
+   <div class="step"><b>04 · Become eligible</b><br><span>Schedule arrives and conditions are satisfied.</span></div>
+   <div class="step"><b>05 · Execute</b><br><span>Start a particular execution and delegate domain operations.</span></div>
+   <div class="step"><b>06 · Complete/fail</b><br><span>Lifecycle reaches a terminal state and diagnostics capture the trail.</span></div>
+  </div></div>
+  <div class="card reveal runtimeCard"><h3>Event trajectory</h3><div class="timeline">
+   <div class="step"><b>01 · Define</b><br><span>Establish a meaningful ecosystem event.</span></div>
+   <div class="step"><b>02 · Register</b><br><span>Make the event available as a known hook point.</span></div>
+   <div class="step"><b>03 · Register callbacks</b><br><span>Associate responses with the event.</span></div>
+   <div class="step"><b>04 · Occur</b><br><span>The event actually happens.</span></div>
+   <div class="step"><b>05 · Resolve + dispatch</b><br><span>Find relevant callbacks and dispatch the event.</span></div>
+   <div class="step"><b>06 · Invoke + diagnose</b><br><span>Callbacks run; outcomes and failures remain observable.</span></div>
+  </div></div>
+ </div>
+</section>
+
+<section>
+ <div class="sectionHead reveal"><div><div class="num">06 / SYSTEM GRAPH</div><h2>One task can touch<br>many authorities.</h2></div><p>Touching another provider does not transfer responsibility to the Task & Event Manager.</p></div>
+ <div class="graph reveal">
+  <div class="gbox" style="left:5%;top:42%">UI Action<small>possible origin</small></div>
+  <div class="gbox" style="left:31%;top:18%">Task Definition<small>Task Management</small></div>
+  <div class="gbox" style="left:31%;top:66%">Schedule + Conditions<small>readiness</small></div>
+  <div class="gbox" style="left:58%;top:42%">Task Execution<small>managed occurrence</small></div>
+  <div class="gbox" style="right:5%;top:18%">Request Manager<small>communication authority</small></div>
+  <div class="gbox" style="right:5%;top:66%">Storage & Data<small>data authority</small></div>
+  <div class="gbox" style="left:56%;bottom:6%">Event: task.completed<small>ecosystem occurrence</small></div>
+  <div class="gline" style="left:19%;top:48%;width:14%;transform:rotate(-14deg)"></div>
+  <div class="gline" style="left:45%;top:38%;width:14%;transform:rotate(17deg)"></div>
+  <div class="gline" style="left:45%;top:70%;width:14%;transform:rotate(-17deg)"></div>
+  <div class="gline" style="left:69%;top:43%;width:12%;transform:rotate(-16deg)"></div>
+  <div class="gline" style="left:69%;top:55%;width:12%;transform:rotate(17deg)"></div>
+  <div class="gline" style="left:67%;top:54%;width:11%;transform:rotate(42deg)"></div>
+ </div>
+</section>
+
+<section id="boundaries">
+ <div class="sectionHead reveal"><div><div class="num">07 / BOUNDARY TEST</div><h2>What this provider<br>must not become.</h2></div><p>Feature richness is not architectural quality. Unnecessary authority creates coupling.</p></div>
+ <div class="grid g3">
+  <div class="card reveal"><div class="icon">×</div><h3>Not an HTTP manager</h3><p>Tasks can require requests. Request construction, validation, dispatch and response handling remain with Request Manager.</p></div>
+  <div class="card reveal"><div class="icon">×</div><h3>Not a data manager</h3><p>Tasks can operate on data. Retrieval, persistence, querying and integrity remain with Storage & Data.</p></div>
+  <div class="card reveal"><div class="icon">×</div><h3>Not a UI manager</h3><p>UI actions can create or influence tasks. UI components and UI-originated actions remain with UI Provider.</p></div>
+  <div class="card reveal"><div class="icon">×</div><h3>Not Core</h3><p>Task lifecycle must not become ecosystem/provider lifecycle. Core remains the ecosystem authority.</p></div>
+  <div class="card reveal"><div class="icon">×</div><h3>Not a universal workflow engine</h3><p>Task/event relationships do not automatically justify a generic workflow abstraction.</p></div>
+  <div class="card reveal"><div class="icon">×</div><h3>Not a business-logic layer</h3><p>Execution coordination is different from owning the actual domain operation performed by a task.</p></div>
+ </div>
+</section>
+
+<section id="audit">
+ <div class="sectionHead reveal"><div><div class="num">08 / ARCHITECTURAL AUDIT</div><h2>Challenge before<br>implementation.</h2></div><p>Every provisional sub-role must earn its place.</p></div>
+ <div class="accordion">
+  <div class="acc open"><button>Task Scheduling vs Conditions vs Eligibility <b>+</b></button><div class="body">Determine whether these are truly separate concepts or whether they should converge into a simpler readiness model. Scheduling answers when to evaluate; conditions answer what must be true; eligibility answers whether execution can begin.</div></div>
+  <div class="acc"><button>Event Registration vs Resolution vs Dispatch <b>+</b></button><div class="body">Registration defines what exists; resolution finds the event and its relationships; dispatch causes an occurrence to reach its registered responses. The final architecture should decide which distinctions are architectural and which are implementation details.</div></div>
+  <div class="acc"><button>Availability vs Validation <b>+</b></button><div class="body">A task or event can be invalid, unavailable, disabled or simply not eligible. These states may be useful, but they should not become separate concepts without a clear semantic difference.</div></div>
+  <div class="acc"><button>State Initialization vs State Management <b>+</b></button><div class="body">Initialization may simply be one phase of state management. The final state model should remain minimal and explicit.</div></div>
+  <div class="acc"><button>Cancellation and Cleanup <b>+</b></button><div class="body">These are legitimate lifecycle concepts but may not be needed in the first implementation. They should be introduced when the runtime requirements justify them.</div></div>
+  <div class="acc"><button>Queues, workers, retries and priorities <b>+</b></button><div class="body">These are deliberately not major roles in the current model. They are possible implementation mechanisms, not automatically core architectural responsibilities.</div></div>
+ </div>
+</section>
+
+<section class="dark">
+ <div class="sectionHead reveal"><div><div class="num">09 / THE CORE PRINCIPLE</div><h2>Own the lifecycle.<br>Delegate the operation.</h2></div><p>The provider becomes powerful without becoming universal.</p></div>
+ <div class="grid g3">
+  <div class="card reveal"><div class="stat">01</div><h3>Define</h3><p>Tasks and events have clear identities, configurations and relationships.</p></div>
+  <div class="card reveal"><div class="stat">02</div><h3>Activate</h3><p>Schedules, conditions and occurrences move managed activity into execution.</p></div>
+  <div class="card reveal"><div class="stat">03</div><h3>Understand</h3><p>Lifecycle and diagnostics make asynchronous ecosystem activity visible.</p></div>
+ </div>
+ <div class="quote reveal" style="margin-top:24px;background:rgba(255,255,255,.06);color:#DFF6E8;border-left-color:#16A052">The Task & Event Manager owns the lifecycle and infrastructure of Tasks and Events—not the domain operations performed through them.</div>
+</section>
+
+<footer class="footer"><div style="max-width:1000px"><div class="eyebrow">BONIKPRESS · ARCHITECTURAL DESIGN</div><h2 style="font-size:42px;line-height:1.05">Simple boundaries.<br>Composable infrastructure.</h2><p>This presentation represents the current provisional architectural model. The next phase is a systematic responsibility audit before conceptual infrastructure and implementation are finalized.</p></div></footer>
+</main>
+</div>
+
+<script>
+const roles=[
+{name:"01 · TASK MANAGEMENT",desc:"The authority over Task definitions, identity, configuration and scheduling.",subs:[
+["Task Definition","Establishes what constitutes a valid BonikPress Task."],["Task Registration","Makes a Task known to the Task & Event Manager."],["Task Identification","Provides a stable identity for referring to a Task."],["Task Configuration","Manages configuration that defines how the Task should operate."],["Task Scheduling","Determines when the Task is intended to occur."],["Task Condition Definition","Defines what must be true before the Task can become eligible."],["Task Availability","Determines whether a registered Task is currently available."]]},
+{name:"02 · EVENT MANAGEMENT",desc:"The authority over ecosystem Events and their callback relationships.",subs:[
+["Event Definition","Establishes what constitutes a valid ecosystem Event."],["Event Registration","Makes an Event known and available as an ecosystem hook point."],["Event Identification","Provides a stable identity for the Event."],["Event Configuration","Manages configuration associated with Event semantics."],["Event Callback Registration","Associates callbacks with an Event."],["Event Resolution","Resolves an occurrence to its event definition and responses."],["Event Availability","Determines whether an Event is currently usable."]]},
+{name:"03 · TASK & EVENT EXECUTION",desc:"The runtime authority that turns eligibility and occurrences into actual activity.",subs:[
+["Task Eligibility","Determines whether a Task is ready to execute."],["Task Invocation","Initiates a particular Task execution."],["Task Execution","Represents a specific runtime occurrence of a Task."],["Event Occurrence","Represents the moment an Event actually happens."],["Event Dispatch","Delivers an occurring Event to registered callbacks."],["Callback Invocation","Attempts to invoke a callback associated with an Event."],["Execution Coordination","Coordinates execution with other providers without taking ownership of their operations."]]},
+{name:"04 · TASK & EVENT LIFECYCLE",desc:"The authority over state progression and terminal outcomes.",subs:[
+["State Initialization","Establishes the initial state of a managed entity."],["State Transition","Governs movement between valid lifecycle states."],["State Management","Maintains the current state of Tasks and executions."],["Completion Management","Handles successful termination and related consequences."],["Failure Management","Handles unsuccessful execution and failure state."],["Cancellation Management","Handles intentional termination."],["Cleanup","Performs necessary final lifecycle work after terminal states."]]},
+{name:"05 · TASK & EVENT DIAGNOSTICS",desc:"The visibility layer for understanding what happened, what is happening and why.",subs:[
+["Observation","Allows runtime Task/Event activity to be observed."],["Logging","Records meaningful domain-specific lifecycle information."],["Error Diagnostics","Provides information about Task/Event failures."],["State Diagnostics","Exposes current state and readiness information."],["Execution Tracing","Provides a chronological trail of execution activity."]]}
+];
+const tabs=document.getElementById("roleTabs"), panels=document.getElementById("rolePanels");
+roles.forEach((r,i)=>{let b=document.createElement("button");b.className="tab"+(i===0?" active":"");b.textContent=r.name;b.onclick=()=>showRole(i);tabs.appendChild(b);
+let p=document.createElement("div");p.className="rolePanel"+(i===0?" active":"");p.innerHTML=`<div class="roleTop"><div class="roleHero"><div class="num">${r.name}</div><h3>${r.name.split(" · ")[1]}</h3><p>${r.desc}</p></div><div class="subgrid">${r.subs.map((s,j)=>`<div class="subcard"><div class="num">${String(j+1).padStart(2,"0")}</div><b>${s[0]}</b><span>${s[1]}</span></div>`).join("")}</div></div>`;panels.appendChild(p)});
+function showRole(i){document.querySelectorAll(".tab").forEach((x,j)=>x.classList.toggle("active",i===j));document.querySelectorAll(".rolePanel").forEach((x,j)=>x.classList.toggle("active",i===j))}
+function go(id){document.getElementById(id).scrollIntoView({behavior:"smooth"})}
+document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{
+  go(b.dataset.go);
+  document.querySelectorAll(".navItem").forEach(n=>n.classList.toggle("active",n.dataset.go===b.dataset.go));
+  document.getElementById("mobileMenu").classList.remove("open");
+});
+document.getElementById("menuBtn").onclick=()=>document.getElementById("mobileMenu").classList.toggle("open");
+document.querySelectorAll(".acc button").forEach(b=>b.onclick=()=>b.parentElement.classList.toggle("open"));
+const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add("show")}),{threshold:.08});document.querySelectorAll(".reveal").forEach(e=>obs.observe(e));
+document.getElementById("focusBtn").onclick=()=>document.body.classList.toggle("focus");
+document.getElementById("search").addEventListener("input",e=>{let q=e.target.value.toLowerCase();document.querySelectorAll(".card,.subcard,.step,.acc").forEach(x=>x.style.display=(!q||x.innerText.toLowerCase().includes(q))?"":"none")});
+</script>
+</body>
+</html>
